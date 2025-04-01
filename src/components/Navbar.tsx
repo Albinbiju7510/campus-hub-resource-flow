@@ -1,11 +1,18 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, User, Search } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, User, Search, Bell, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Active link styling helper
+  const isActive = (path: string) => {
+    return location.pathname === path ? 'border-campus-primary text-campus-primary' : 'border-transparent text-gray-700 hover:text-campus-primary hover:border-campus-primary';
+  };
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -16,32 +23,48 @@ const Navbar = () => {
               <span className="text-xl font-bold text-campus-primary">CampusHub</span>
             </Link>
             <div className="hidden sm:ml-10 sm:flex sm:space-x-8">
-              <Link to="/" className="border-transparent text-gray-700 hover:text-campus-primary border-b-2 hover:border-campus-primary px-1 pt-1 pb-3 text-sm font-medium">
+              <Link to="/" className={`${isActive('/')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                 Home
               </Link>
-              <Link to="/resources" className="border-transparent text-gray-700 hover:text-campus-primary border-b-2 hover:border-campus-primary px-1 pt-1 pb-3 text-sm font-medium">
+              <Link to="/resources" className={`${isActive('/resources')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                 Resources
               </Link>
-              <Link to="/booking" className="border-transparent text-gray-700 hover:text-campus-primary border-b-2 hover:border-campus-primary px-1 pt-1 pb-3 text-sm font-medium">
-                Booking
+              <Link to="/notifications" className={`${isActive('/notifications')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
+                Notifications
               </Link>
-              <Link to="/about" className="border-transparent text-gray-700 hover:text-campus-primary border-b-2 hover:border-campus-primary px-1 pt-1 pb-3 text-sm font-medium">
+              <Link to="/points" className={`${isActive('/points')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
+                Points
+              </Link>
+              <Link to="/about" className={`${isActive('/about')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                 About
               </Link>
-              <Link to="/contact" className="border-transparent text-gray-700 hover:text-campus-primary border-b-2 hover:border-campus-primary px-1 pt-1 pb-3 text-sm font-medium">
+              <Link to="/contact" className={`${isActive('/contact')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                 Contact
               </Link>
             </div>
           </div>
           <div className="flex items-center">
             <div className="hidden sm:flex sm:items-center sm:space-x-2">
+              <Link to="/notifications">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  <Badge className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-red-500">3</Badge>
+                </Button>
+              </Link>
+              <Link to="/points">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Award className="h-5 w-5" />
+                </Button>
+              </Link>
               <Button variant="ghost" size="icon">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <User className="h-4 w-4" />
-                <span>Login</span>
-              </Button>
+              <Link to="/account">
+                <Button variant="outline" className="flex items-center space-x-2">
+                  <User className="h-4 w-4" />
+                  <span>Account</span>
+                </Button>
+              </Link>
             </div>
             <div className="flex items-center sm:hidden">
               <button 
@@ -63,19 +86,22 @@ const Navbar = () => {
       {/* Mobile menu */}
       <div className={`${isMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link to="/" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-campus-primary hover:text-campus-primary">
+          <Link to="/" className={`${isActive('/') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
             Home
           </Link>
-          <Link to="/resources" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-campus-primary hover:text-campus-primary">
+          <Link to="/resources" className={`${isActive('/resources') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
             Resources
           </Link>
-          <Link to="/booking" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-campus-primary hover:text-campus-primary">
-            Booking
+          <Link to="/notifications" className={`${isActive('/notifications') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            Notifications
           </Link>
-          <Link to="/about" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-campus-primary hover:text-campus-primary">
+          <Link to="/points" className={`${isActive('/points') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            Points
+          </Link>
+          <Link to="/about" className={`${isActive('/about') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
             About
           </Link>
-          <Link to="/contact" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-700 hover:bg-gray-50 hover:border-campus-primary hover:text-campus-primary">
+          <Link to="/contact" className={`${isActive('/contact') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
             Contact
           </Link>
         </div>
@@ -87,7 +113,7 @@ const Navbar = () => {
               </div>
             </div>
             <div className="ml-3">
-              <div className="text-base font-medium text-gray-800">Login / Sign Up</div>
+              <Link to="/account" className="text-base font-medium text-gray-800">Account</Link>
             </div>
           </div>
         </div>

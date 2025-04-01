@@ -2,6 +2,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { useToast } from '@/hooks/use-toast';
 
 interface LayoutProps {
   children: React.ReactNode;
