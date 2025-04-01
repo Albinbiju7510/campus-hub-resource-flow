@@ -21,7 +21,7 @@ interface ResourceFilterProps {
   onReset: () => void;
 }
 
-const ResourceFilter: React.FC<ResourceFilterProps> = ({
+const ResourceFilter = ({
   searchQuery,
   setSearchQuery,
   resourceType,
@@ -29,7 +29,7 @@ const ResourceFilter: React.FC<ResourceFilterProps> = ({
   availability,
   setAvailability,
   onReset
-}) => {
+}: ResourceFilterProps) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h3 className="text-xl font-semibold mb-4 text-campus-primary">Filter Resources</h3>
@@ -79,9 +79,9 @@ const ResourceFilter: React.FC<ResourceFilterProps> = ({
             </SelectTrigger>
             <SelectContent className="z-50">
               <SelectItem value="all">Any Availability</SelectItem>
-              <SelectItem value="high">High (>70%)</SelectItem>
+              <SelectItem value="high">High (&gt;70%)</SelectItem>
               <SelectItem value="medium">Medium (30-70%)</SelectItem>
-              <SelectItem value="low">Low (<30%)</SelectItem>
+              <SelectItem value="low">Low (&lt;30%)</SelectItem>
             </SelectContent>
           </Select>
         </div>
