@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,10 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminMessaging from "./pages/AdminMessaging";
+import AdminPoints from "./pages/AdminPoints";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +30,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isAdmin, isPrincipal } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (!isAdmin() && !isPrincipal()) {
+    return <Navigate to="/" replace />;
   }
   
   return <>{children}</>;
@@ -42,10 +61,17 @@ const AppRoutes = () => {
       <Route path="/signup" element={<Signup />} />
       <Route path="/terms" element={<Terms />} />
       
+      {/* Protected Routes (for any authenticated user) */}
       <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
       <Route path="/points" element={<ProtectedRoute><Points /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+      
+      {/* Admin/Principal Routes */}
+      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+      <Route path="/admin/messaging" element={<AdminRoute><AdminMessaging /></AdminRoute>} />
+      <Route path="/admin/points" element={<AdminRoute><AdminPoints /></AdminRoute>} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, Search, Bell, Award, LogOut } from 'lucide-react';
+import { Menu, X, User, Bell, Award, LogOut, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,7 +19,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, isPrincipal } = useAuth();
 
   // Active link styling helper
   const isActive = (path: string) => {
@@ -54,6 +54,11 @@ const Navbar = () => {
                   <Link to="/points" className={`${isActive('/points')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                     Points
                   </Link>
+                  {(isAdmin() || isPrincipal()) && (
+                    <Link to="/admin" className={`${isActive('/admin')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
+                      Dashboard
+                    </Link>
+                  )}
                 </>
               ) : null}
               <Link to="/about" className={`${isActive('/about')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
@@ -84,6 +89,13 @@ const Navbar = () => {
                       ) : null}
                     </Button>
                   </Link>
+                  {(isAdmin() || isPrincipal()) && (
+                    <Link to="/admin">
+                      <Button variant="ghost" size="icon">
+                        <ShieldAlert className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -101,6 +113,12 @@ const Navbar = () => {
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </DropdownMenuItem>
+                      {(isAdmin() || isPrincipal()) && (
+                        <DropdownMenuItem onClick={() => navigate('/admin')}>
+                          <ShieldAlert className="mr-2 h-4 w-4" />
+                          <span>Admin Dashboard</span>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
@@ -153,6 +171,11 @@ const Navbar = () => {
               <Link to="/points" className={`${isActive('/points') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
                 Points
               </Link>
+              {(isAdmin() || isPrincipal()) && (
+                <Link to="/admin" className={`${isActive('/admin') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+                  Admin Dashboard
+                </Link>
+              )}
             </>
           )}
           <Link to="/about" className={`${isActive('/about') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
