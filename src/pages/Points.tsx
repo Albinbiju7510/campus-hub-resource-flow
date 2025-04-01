@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Award, ChevronRight, Gift, Calendar, BookOpen, ShoppingBag, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import PointAnimation from '@/components/PointAnimation';
 
 interface PointTransaction {
   id: string;
@@ -25,7 +27,7 @@ interface Reward {
   available: boolean;
 }
 
-const pointTransactions: PointTransaction[] = [
+const initialTransactions: PointTransaction[] = [
   {
     id: 'pt1',
     description: 'Attended Campus Cleanup Event',
@@ -124,11 +126,13 @@ const formatDate = (dateString: string) => {
 
 const RewardCard = ({ reward }: { reward: Reward }) => {
   const { toast } = useToast();
-  const totalPoints = pointTransactions.reduce((sum, transaction) => sum + transaction.points, 0);
+  const { user, updatePoints } = useAuth();
+  const totalPoints = user?.points || 0;
   const canRedeem = totalPoints >= reward.pointsCost && reward.available;
   
   const handleRedeem = () => {
     if (canRedeem) {
+      updatePoints(-reward.pointsCost);
       toast({
         title: "Reward Redeemed!",
         description: `You've successfully redeemed ${reward.title}. Check your email for details.`,
@@ -143,12 +147,12 @@ const RewardCard = ({ reward }: { reward: Reward }) => {
   };
 
   return (
-    <Card className={`${!reward.available ? 'opacity-60' : ''}`}>
+    <Card className={`${!reward.available ? 'opacity-60' : ''} hover:shadow-md transition-shadow duration-300`}>
       <div className="h-48 w-full overflow-hidden">
         <img 
           src={reward.image} 
           alt={reward.title} 
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
         />
       </div>
       <CardHeader className="pb-2">
@@ -172,8 +176,35 @@ const RewardCard = ({ reward }: { reward: Reward }) => {
 };
 
 const Points = () => {
-  const totalPoints = pointTransactions.reduce((sum, transaction) => sum + transaction.points, 0);
+  const { user, updatePoints } = useAuth();
+  const totalPoints = user?.points || 0;
   const [activeTab, setActiveTab] = useState('history');
+  const [pointTransactions, setPointTransactions] = useState<PointTransaction[]>(initialTransactions);
+  const [showPointAnimation, setShowPointAnimation] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
+  const [pointText, setPointText] = useState('');
+
+  // Demo function to simulate earning points
+  const simulateEarnPoints = (amount: number, description: string) => {
+    // Show animation
+    setEarnedPoints(amount);
+    setPointText(`${amount} Points Earned!`);
+    setShowPointAnimation(true);
+    
+    // Update points in auth context
+    updatePoints(amount);
+    
+    // Add new transaction
+    const newTransaction: PointTransaction = {
+      id: `pt${Date.now()}`,
+      description,
+      points: amount,
+      category: 'facility',
+      date: new Date().toISOString()
+    };
+    
+    setPointTransactions(prev => [newTransaction, ...prev]);
+  };
 
   return (
     <Layout>
@@ -185,7 +216,7 @@ const Points = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center">
@@ -205,15 +236,35 @@ const Points = () => {
               </div>
             </div>
             
-            <div className="flex-1 text-center">
-              <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 text-blue-800 mb-3">
-                <Gift className="h-12 w-12" />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 text-center">
+                <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 text-blue-800 mb-3 hover:scale-105 transition-transform">
+                  <Gift className="h-12 w-12" />
+                </div>
+                <h3 className="text-lg font-semibold">Redeem Points</h3>
+                <p className="text-gray-600 mb-3">Exchange your points for exclusive rewards</p>
+                <Button 
+                  onClick={() => setActiveTab('rewards')}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                >
+                  View Rewards
+                </Button>
               </div>
-              <h3 className="text-lg font-semibold">Redeem Points</h3>
-              <p className="text-gray-600 mb-3">Exchange your points for exclusive rewards</p>
-              <Button onClick={() => setActiveTab('rewards')}>
-                View Rewards
-              </Button>
+              
+              <div className="flex-1 text-center">
+                <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-green-100 text-green-800 mb-3 hover:scale-105 transition-transform">
+                  <Calendar className="h-12 w-12" />
+                </div>
+                <h3 className="text-lg font-semibold">Earn Points Now</h3>
+                <p className="text-gray-600 mb-3">Simulate using a campus facility</p>
+                <Button
+                  onClick={() => simulateEarnPoints(15, "Used Study Room for 1 hour")}
+                  variant="outline"
+                  className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white border-none"
+                >
+                  Use Study Room
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -229,7 +280,7 @@ const Points = () => {
               <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
               <div className="divide-y">
                 {pointTransactions.map(transaction => (
-                  <div key={transaction.id} className="py-4 flex items-center justify-between">
+                  <div key={transaction.id} className="py-4 flex items-center justify-between hover:bg-gray-50 rounded-lg p-2 transition-colors">
                     <div className="flex items-center">
                       <div className="bg-gray-100 p-2 rounded-full mr-4">
                         {getCategoryIcon(transaction.category)}
@@ -265,6 +316,14 @@ const Points = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {showPointAnimation && (
+        <PointAnimation 
+          points={earnedPoints} 
+          text={pointText}
+          onComplete={() => setShowPointAnimation(false)} 
+        />
+      )}
     </Layout>
   );
 };
