@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 50% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,16 +14,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 217.2 91.2% 40.8%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 187 100% 42.2%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 160 84.1% 39.2%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +91,31 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .campus-heading {
+    @apply text-4xl font-bold text-campus-primary mb-6;
+  }
+  
+  .campus-subheading {
+    @apply text-2xl font-semibold text-campus-secondary mb-4;
+  }
+  
+  .campus-card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden;
+  }
+  
+  .campus-button-primary {
+    @apply bg-campus-primary hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded transition-colors duration-200;
+  }
+  
+  .campus-button-secondary {
+    @apply bg-campus-secondary hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200;
+  }
+
+  .campus-input {
+    @apply border-2 border-gray-200 focus:border-campus-primary rounded px-4 py-2 outline-none transition-colors duration-200;
   }
 }
