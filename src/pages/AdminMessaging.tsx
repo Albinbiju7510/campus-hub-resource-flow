@@ -58,22 +58,24 @@ const AdminMessaging = () => {
     
     setTimeout(() => {
       // Send notification
-      sendNotification(
-        messageTitle,
-        messageBody,
-        `${user?.name} (${user?.role})`
-      );
-      
-      toast({
-        title: "Message Sent",
-        description: `Your message has been sent to ${targetAudience === 'all' ? 'all users' : `${department} department`}.`,
-      });
-      
-      // Reset form
-      setMessageTitle('');
-      setMessageBody('');
-      setTargetAudience('all');
-      setDepartment('');
+      if (user) {
+        sendNotification(
+          messageTitle,
+          messageBody,
+          `${user.name} (${user.role})`
+        );
+        
+        toast({
+          title: "Message Sent",
+          description: `Your message has been sent to ${targetAudience === 'all' ? 'all users' : `${department} department`}.`,
+        });
+        
+        // Reset form
+        setMessageTitle('');
+        setMessageBody('');
+        setTargetAudience('all');
+        setDepartment('');
+      }
       setIsLoading(false);
     }, 1000);
   };
