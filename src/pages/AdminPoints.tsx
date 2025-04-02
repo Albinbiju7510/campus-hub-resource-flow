@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, HelpCircle, FileText, DownloadCloud } from 'lucide-react';
+import { Plus, Search, HelpCircle, FileText, DownloadCloud, Calendar } from 'lucide-react';
 
 const pointCategories = [
   { id: 'academic', name: 'Academic Achievement' },
@@ -22,8 +22,17 @@ const pointCategories = [
   { id: 'community', name: 'Community Service' }
 ];
 
+// Point rewards conversion (points to ₹ value)
+const pointsToRupeesTiers = [
+  { points: 100, rupees: 50 },
+  { points: 250, rupees: 150 },
+  { points: 500, rupees: 350 },
+  { points: 1000, rupees: 800 },
+  { points: 2000, rupees: 1800 }
+];
+
 const AdminPoints = () => {
-  const { users, isAdmin, isPrincipal, sendNotification } = useAuth();
+  const { users, isAdmin, isPrincipal, sendNotification, updatePoints } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedStudent, setSelectedStudent] = useState('');
@@ -80,15 +89,26 @@ const AdminPoints = () => {
     setIsLoading(true);
     
     setTimeout(() => {
-      // In a real app, this would make an API call to update points
+      // Find the selected student
       const student = students.find(s => s.id === selectedStudent);
       
       if (student) {
+        // Update the student's points in the context
+        updatePoints(
+          Number(pointsToAdd), 
+          getCategoryNameById(pointCategory), 
+          `${getReasonText(reason)}${detailedDescription ? ': ' + detailedDescription : ''}`
+        );
+        
         // Send notification to the student
         sendNotification(
           `Points Added: ${pointsToAdd} points`,
-          `You have been awarded ${pointsToAdd} points for ${reason}. ${detailedDescription ? `Details: ${detailedDescription}` : ''}`,
-          "Points System Administrator"
+          `You have been awarded ${pointsToAdd} points for ${getReasonText(reason)}. ${detailedDescription ? `Details: ${detailedDescription}` : ''}`,
+          "Points System Administrator",
+          {
+            targetUsers: [student.id],
+            type: 'success'
+          }
         );
         
         toast({
@@ -114,6 +134,60 @@ const AdminPoints = () => {
     });
   };
   
+  // Get category name from id
+  const getCategoryNameById = (categoryId: string) => {
+    const category = pointCategories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId;
+  };
+  
+  // Get human-readable reason text
+  const getReasonText = (reasonId: string) => {
+    switch (reasonId) {
+      case 'facility-usage': return 'Campus Facility Usage';
+      case 'event-participation': return 'Event Participation';
+      case 'classroom-attendance': return 'Perfect Classroom Attendance';
+      case 'extracurricular': return 'Extracurricular Activity';
+      case 'achievement': return 'Academic Achievement';
+      case 'volunteer': return 'Volunteer Work';
+      case 'competition': return 'Competition Performance';
+      default: return reasonId;
+    }
+  };
+  
+  // Calculate rupee value for points
+  const calculateRupeeValue = (points: number) => {
+    let value = 0;
+    for (const tier of pointsToRupeesTiers) {
+      if (points >= tier.points) {
+        value = tier.rupees;
+      } else {
+        break;
+      }
+    }
+    return value;
+  };
+  
+  // Get next tier information for a student
+  const getNextTier = (currentPoints: number) => {
+    for (const tier of pointsToRupeesTiers) {
+      if (currentPoints < tier.points) {
+        return {
+          points: tier.points,
+          rupees: tier.rupees,
+          remaining: tier.points - currentPoints
+        };
+      }
+    }
+    
+    // If they've exceeded all tiers
+    const lastTier = pointsToRupeesTiers[pointsToRupeesTiers.length - 1];
+    return {
+      points: lastTier.points,
+      rupees: lastTier.rupees,
+      remaining: 0
+    };
+  };
+  
   return (
     <Layout>
       <div className="max-w-7xl mx-auto py-12 px-4">
@@ -123,9 +197,10 @@ const AdminPoints = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="award">Award Points</TabsTrigger>
             <TabsTrigger value="leaderboard">Points Leaderboard</TabsTrigger>
+            <TabsTrigger value="rewards">Rewards System</TabsTrigger>
           </TabsList>
           
           <TabsContent value="award" className="space-y-6">
@@ -358,11 +433,11 @@ const AdminPoints = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12 text-center">#</TableHead>
-                        <TableHead>Name</TableHead>
+                        <TableHead>Student</TableHead>
                         <TableHead>Department</TableHead>
                         <TableHead>Year</TableHead>
-                        <TableHead>Email</TableHead>
                         <TableHead className="text-right">Points</TableHead>
+                        <TableHead className="text-right">Reward Value</TableHead>
                         <TableHead className="text-right">Tier</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -388,15 +463,37 @@ const AdminPoints = () => {
                               default: tierColor = "bg-amber-100 text-amber-800"; break;
                             }
                             
+                            // Calculate reward value
+                            const rupeeValue = calculateRupeeValue(student.points);
+                            
                             return (
                               <TableRow key={student.id}>
                                 <TableCell className="font-medium text-center">{index + 1}</TableCell>
-                                <TableCell className="font-medium">{student.name}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center">
+                                    {student.profileImage ? (
+                                      <img 
+                                        src={student.profileImage} 
+                                        alt={student.name} 
+                                        className="w-8 h-8 rounded-full mr-2"
+                                      />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-gray-200 rounded-full mr-2 flex items-center justify-center">
+                                        <span className="text-xs font-medium">
+                                          {student.name.charAt(0)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    <span className="font-medium">{student.name}</span>
+                                  </div>
+                                </TableCell>
                                 <TableCell>{student.department || 'N/A'}</TableCell>
                                 <TableCell>{student.year || 'N/A'}</TableCell>
-                                <TableCell>{student.email}</TableCell>
                                 <TableCell className="text-right font-bold">
                                   {student.points}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {rupeeValue > 0 ? `₹${rupeeValue}` : 'N/A'}
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${tierColor}`}>
@@ -415,6 +512,128 @@ const AdminPoints = () => {
                       )}
                     </TableBody>
                   </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="rewards">
+            <Card>
+              <CardHeader>
+                <CardTitle>Points Rewards System</CardTitle>
+                <CardDescription>Students can redeem their points for various rewards and benefits</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-campus-primary mb-4">Points to Value Conversion</h3>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Points Threshold</TableHead>
+                            <TableHead>Monetary Value</TableHead>
+                            <TableHead>Eligible Rewards</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>100 points</TableCell>
+                            <TableCell>₹50 value</TableCell>
+                            <TableCell>Canteen vouchers, Printing credits</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>250 points</TableCell>
+                            <TableCell>₹150 value</TableCell>
+                            <TableCell>Campus store discount, Library privileges</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>500 points</TableCell>
+                            <TableCell>₹350 value</TableCell>
+                            <TableCell>Event tickets, Workshop fee waiver</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>1000 points</TableCell>
+                            <TableCell>₹800 value</TableCell>
+                            <TableCell>College merchandise, Books voucher</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>2000 points</TableCell>
+                            <TableCell>₹1800 value</TableCell>
+                            <TableCell>Special recognitions, Premium privileges</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card>
+                      <CardHeader className="bg-blue-50">
+                        <CardTitle className="text-lg">Redeem Process</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <ol className="list-decimal pl-5 space-y-2">
+                          <li>Students accumulate points through campus activities</li>
+                          <li>Verify points balance in student account</li>
+                          <li>Visit the administrative office to request redemption</li>
+                          <li>Select rewards based on available points</li>
+                          <li>Points will be deducted from account after redemption</li>
+                        </ol>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="bg-green-50">
+                        <CardTitle className="text-lg">Benefits</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <ul className="list-disc pl-5 space-y-2">
+                          <li>Encourages campus resource utilization</li>
+                          <li>Promotes student participation in events</li>
+                          <li>Rewards academic excellence</li>
+                          <li>Provides tangible benefits for engagement</li>
+                          <li>Creates a positive feedback loop for campus involvement</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="bg-yellow-50">
+                        <CardTitle className="text-lg">Available Rewards</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <ul className="list-disc pl-5 space-y-2">
+                          <li>Canteen vouchers (₹50-₹200)</li>
+                          <li>College merchandise (T-shirts, bottles, bags)</li>
+                          <li>Printing and photocopy credits</li>
+                          <li>Event and workshop fee waivers</li>
+                          <li>Extended library borrowing privileges</li>
+                          <li>Campus store discounts (10-25%)</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-6 rounded-lg border">
+                    <h3 className="text-lg font-semibold text-campus-primary mb-4">Upcoming Special Rewards</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-start">
+                        <Calendar className="h-5 w-5 text-campus-primary mt-1 mr-2" />
+                        <div>
+                          <h4 className="font-medium">Tech Fest Exclusive Access</h4>
+                          <p className="text-sm text-gray-600">1000 points for VIP access to annual Tech Fest (May 15-17)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <Calendar className="h-5 w-5 text-campus-primary mt-1 mr-2" />
+                        <div>
+                          <h4 className="font-medium">Industry Visit Opportunity</h4>
+                          <p className="text-sm text-gray-600">1500 points for priority selection in upcoming Bangalore tech companies visit</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

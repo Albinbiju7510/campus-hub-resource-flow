@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Bell, Info, AlertTriangle, CheckCircle, Mail, User, Calendar } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Mail, User, Calendar, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 
-interface Notification {
+interface NotificationDisplay {
   id: string;
   title: string;
   message: string;
@@ -19,69 +20,29 @@ interface Notification {
 }
 
 const Notifications = () => {
-  const { user, users } = useAuth();
+  const { user, getUserNotifications, markNotificationAsRead } = useAuth();
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationDisplay[]>([]);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Fetch notifications from localStorage
+  // Fetch notifications for the current user
   useEffect(() => {
-    const storedNotifications = localStorage.getItem('campushub-notifications');
-    if (storedNotifications) {
-      const parsedNotifications = JSON.parse(storedNotifications);
-      setNotifications(parsedNotifications);
-    } else {
-      // Sample notifications if none exist
-      const initialNotifications: Notification[] = [
-        {
-          id: 'n1',
-          title: 'Library Extended Hours',
-          message: 'The main library will be open until midnight during finals week (May 1-7).',
-          type: 'info',
-          date: new Date().toISOString(),
-          read: false,
-          sender: 'Administration'
-        },
-        {
-          id: 'n2',
-          title: 'Campus Store Sale',
-          message: 'Enjoy 20% off on all campus merchandise this weekend!',
-          type: 'info',
-          date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          read: false,
-          sender: 'Campus Store'
-        },
-        {
-          id: 'n3',
-          title: 'Scheduled Maintenance',
-          message: 'The science lab will be closed for maintenance on April 30th.',
-          type: 'alert',
-          date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-          read: true,
-          sender: 'Facilities Department'
-        },
-        {
-          id: 'n4',
-          title: 'Points Added',
-          message: 'You earned 50 points for attending the campus cleanup event!',
-          type: 'success',
-          date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-          read: true
-        },
-        {
-          id: 'n5',
-          title: 'Welcome Message',
-          message: 'Welcome to CampusHub! We\'re excited to have you join our platform.',
-          type: 'message',
-          date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
-          read: true,
-          sender: 'Principal'
-        }
-      ];
-      setNotifications(initialNotifications);
-      localStorage.setItem('campushub-notifications', JSON.stringify(initialNotifications));
+    if (user) {
+      const userNotifications = getUserNotifications();
+      
+      const formattedNotifications = userNotifications.map(notification => ({
+        id: notification.id,
+        title: notification.title,
+        message: notification.body,
+        type: notification.type,
+        date: new Date(notification.timestamp).toISOString(),
+        read: notification.read,
+        sender: notification.sender
+      }));
+      
+      setNotifications(formattedNotifications);
     }
-  }, []);
+  }, [user, getUserNotifications]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -109,44 +70,60 @@ const Notifications = () => {
     });
   };
 
-  const markAsRead = (id: string) => {
-    const updatedNotifications = notifications.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
+  const handleMarkAsRead = (id: string) => {
+    markNotificationAsRead(id);
+    
+    // Update local state
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id ? { ...notification, read: true } : notification
+      )
     );
-    setNotifications(updatedNotifications);
-    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+    
     toast({
       title: "Notification marked as read",
       description: "This notification has been marked as read."
     });
   };
 
-  const markAllAsRead = () => {
-    const updatedNotifications = notifications.map(notification => ({ ...notification, read: true }));
-    setNotifications(updatedNotifications);
-    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+  const handleMarkAllAsRead = () => {
+    // Mark all notifications as read in context
+    notifications.forEach(notification => {
+      if (!notification.read) {
+        markNotificationAsRead(notification.id);
+      }
+    });
+    
+    // Update local state
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+    
     toast({
       title: "All notifications marked as read",
       description: "All notifications have been marked as read."
     });
   };
 
-  const deleteNotification = (id: string) => {
-    const updatedNotifications = notifications.filter(notification => notification.id !== id);
-    setNotifications(updatedNotifications);
-    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+  const handleDeleteNotification = (id: string) => {
+    // Remove from local state only
+    setNotifications(prev => 
+      prev.filter(notification => notification.id !== id)
+    );
+    
     toast({
       title: "Notification deleted",
-      description: "This notification has been removed."
+      description: "This notification has been removed from your list."
     });
   };
 
-  const deleteAllNotifications = () => {
+  const handleDeleteAllNotifications = () => {
+    // Clear all notifications from local state
     setNotifications([]);
-    localStorage.setItem('campushub-notifications', JSON.stringify([]));
+    
     toast({
       title: "All notifications deleted",
-      description: "All notifications have been cleared."
+      description: "All notifications have been cleared from your list."
     });
   };
 
@@ -185,10 +162,10 @@ const Notifications = () => {
                 <TabsTrigger value="success">Points</TabsTrigger>
               </TabsList>
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={markAllAsRead}>
+                <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
                   Mark All as Read
                 </Button>
-                <Button variant="outline" size="sm" onClick={deleteAllNotifications} className="text-red-500 border-red-200 hover:bg-red-50">
+                <Button variant="outline" size="sm" onClick={handleDeleteAllNotifications} className="text-red-500 border-red-200 hover:bg-red-50">
                   Clear All
                 </Button>
               </div>
@@ -203,6 +180,11 @@ const Notifications = () => {
                         <div className="flex items-center">
                           {getIcon(notification.type)}
                           <CardTitle className="ml-2 text-lg">{notification.title}</CardTitle>
+                          {!notification.read && (
+                            <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800">
+                              New
+                            </Badge>
+                          )}
                         </div>
                         <CardDescription>{formatDate(notification.date)}</CardDescription>
                       </div>
@@ -218,11 +200,17 @@ const Notifications = () => {
                     </CardContent>
                     <CardFooter className="flex justify-end pt-2 space-x-2">
                       {!notification.read && (
-                        <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
+                        <Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)}>
                           Mark as Read
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => deleteNotification(notification.id)}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-500 hover:text-red-700" 
+                        onClick={() => handleDeleteNotification(notification.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
                         Delete
                       </Button>
                     </CardFooter>

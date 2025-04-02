@@ -100,15 +100,42 @@ const AdminMessaging = () => {
     setIsLoading(true);
     
     setTimeout(() => {
-      // Send notification
       if (user) {
+        // Configure notification options based on targeting
+        const notificationOptions: {
+          type: 'info' | 'alert' | 'success' | 'message',
+          targetUsers?: string[],
+          targetDepartment?: string,
+          targetYear?: string
+        } = {
+          type: urgentMessage ? 'alert' : messageType
+        };
+        
+        // Set target audience
+        switch (targetAudience) {
+          case 'department':
+            notificationOptions.targetDepartment = department;
+            break;
+          case 'year':
+            notificationOptions.targetYear = year;
+            break;
+          case 'students': 
+            notificationOptions.targetUsers = users
+              .filter(u => u.role === 'student')
+              .map(u => u.id);
+            break;
+          // 'all' is default, no targeting needed
+        }
+        
+        // Send notification through context
         sendNotification(
           messageTitle,
           messageBody,
-          `${user.name} (${user.role})`
+          `${user.name} (${user.role})`,
+          notificationOptions
         );
         
-        // Add to sent messages
+        // Add to sent messages history
         const newMessage = {
           id: `m${Date.now()}`,
           title: messageTitle,
@@ -116,7 +143,7 @@ const AdminMessaging = () => {
           audience: getAudienceDescription(),
           date: new Date().toISOString(),
           sender: user.name,
-          type: messageType
+          type: notificationOptions.type
         };
         
         setSentMessages(prev => [newMessage, ...prev]);
