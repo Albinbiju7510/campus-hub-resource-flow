@@ -103,7 +103,7 @@ const AdminMessaging = () => {
       if (user) {
         // Configure notification options based on targeting
         const notificationOptions: {
-          type: 'info' | 'alert' | 'success' | 'message',
+          type: 'info' | 'alert' | 'success',
           targetUsers?: string[],
           targetDepartment?: string,
           targetYear?: string

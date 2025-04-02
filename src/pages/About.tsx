@@ -1,6 +1,8 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GitHub, Linkedin, Mail, Phone } from 'lucide-react';
 
 const About = () => {
   return (
@@ -40,78 +42,209 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-campus-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-campus-primary mb-3">Efficiency</h3>
+              <h3 className="text-lg font-semibold mb-2">Efficiency</h3>
               <p className="text-gray-600">
-                We strive to make resource utilization as efficient as possible, saving time and reducing waste.
+                We strive to make the most out of available resources, minimizing waste and maximizing value for every campus member.
               </p>
             </div>
-            
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-campus-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Accessibility</h3>
+              <p className="text-gray-600">
+                Everyone should have equal opportunity to use campus resources. Our platform ensures access is equitable and straightforward.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-campus-primary mb-3">Accessibility</h3>
+              <h3 className="text-lg font-semibold mb-2">Community</h3>
               <p className="text-gray-600">
-                We believe in equitable access to resources for all members of our diverse campus community.
+                We build stronger campus communities by facilitating connections and collaborations between students, faculty, and staff.
               </p>
             </div>
+          </div>
+        </div>
+
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold text-campus-secondary mb-8 text-center">Our Team</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="overflow-hidden">
+              <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
+                  <img 
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" 
+                    alt="Albin Biju" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <CardHeader className="text-center pb-2">
+                <CardTitle>Albin Biju</CardTitle>
+                <p className="text-campus-primary font-medium">Team Lead</p>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <p className="text-gray-600 mb-4">
+                  Leads the development team and oversees the architecture of CampusHub.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <GitHub className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a href="mailto:albinbiju75100@gmail.com" className="text-gray-500 hover:text-campus-primary">
+                    <Mail className="h-5 w-5" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
             
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-campus-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+            <Card className="overflow-hidden">
+              <div className="h-48 bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center">
+                <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
+                  <img 
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" 
+                    alt="Aromal M" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-campus-primary mb-3">Reliability</h3>
-              <p className="text-gray-600">
-                We provide accurate, real-time information that users can depend on for their planning needs.
-              </p>
+              <CardHeader className="text-center pb-2">
+                <CardTitle>Aromal M</CardTitle>
+                <p className="text-campus-primary font-medium">Developer</p>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <p className="text-gray-600 mb-4">
+                  Frontend developer focusing on UI/UX design and responsive layouts.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <GitHub className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Mail className="h-5 w-5" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden">
+              <div className="h-48 bg-gradient-to-r from-yellow-500 to-amber-600 flex items-center justify-center">
+                <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
+                  <img 
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" 
+                    alt="Ansel A Jiji" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <CardHeader className="text-center pb-2">
+                <CardTitle>Ansel A Jiji</CardTitle>
+                <p className="text-campus-primary font-medium">Developer</p>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <p className="text-gray-600 mb-4">
+                  Backend developer specializing in database management and API integration.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <GitHub className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Mail className="h-5 w-5" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden">
+              <div className="h-48 bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center">
+                <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
+                  <img 
+                    src="https://images.unsplash.com/photo-1603415526960-f7e0328c63b1" 
+                    alt="Christo Mathew George" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <CardHeader className="text-center pb-2">
+                <CardTitle>Christo Mathew George</CardTitle>
+                <p className="text-campus-primary font-medium">Developer</p>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <p className="text-gray-600 mb-4">
+                  Full-stack developer responsible for system integrations and testing.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <GitHub className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                    <Mail className="h-5 w-5" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold text-campus-secondary mb-6 text-center">Contact Us</h2>
+          <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Get in Touch</h3>
+                <p className="text-gray-700 mb-6">
+                  We're always looking to improve CampusHub. If you have questions, suggestions, or feedback, please reach out to us.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <Mail className="h-5 w-5 text-campus-primary mr-3" />
+                    <span>albinbiju75100@gmail.com</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="h-5 w-5 text-campus-primary mr-3" />
+                    <span>+91 7510903774</span>
+                  </div>
+                  <div className="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-campus-primary mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>College of Engineering Aranmula<br />Aranmula, Pathanamthitta<br />Kerala, India</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <img 
+                  src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" 
+                  alt="College campus" 
+                  className="rounded-lg shadow-md w-full h-64 object-cover"
+                />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-campus-light p-8 rounded-lg mb-16">
-          <h2 className="text-2xl font-bold text-campus-secondary mb-6 text-center">Our Team</h2>
-          <p className="text-gray-700 text-center max-w-3xl mx-auto mb-8">
-            CampusHub was developed by a passionate team of students from College of Engineering Aranmula who recognized the need for better resource management on campus.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { name: "Albin Biju", role: "Team Lead", image: "https://randomuser.me/api/portraits/men/32.jpg" },
-              { name: "Aromal M", role: "Developer", image: "https://randomuser.me/api/portraits/men/44.jpg" },
-              { name: "Ansel A Jiji", role: "UI/UX Designer", image: "https://randomuser.me/api/portraits/men/46.jpg" },
-              { name: "Christo Mathew George", role: "Backend Developer", image: "https://randomuser.me/api/portraits/men/65.jpg" }
-            ].map((member, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-md text-center">
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-24 h-24 rounded-full mx-auto mb-4"
-                />
-                <h3 className="text-lg font-semibold text-campus-primary">{member.name}</h3>
-                <p className="text-gray-600">{member.role}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-campus-secondary mb-4">Join Our Mission</h2>
-          <p className="text-gray-700 max-w-3xl mx-auto mb-6">
-            We're always looking for feedback and ways to improve. If you have suggestions or want to get involved with improving campus resource management, we'd love to hear from you.
-          </p>
-          <a 
-            href="/contact" 
-            className="inline-block campus-button-primary"
-          >
-            Contact Us
-          </a>
         </div>
       </div>
     </Layout>

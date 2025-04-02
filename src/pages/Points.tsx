@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Award, ChevronRight, Gift, Calendar, BookOpen, ShoppingBag, Users, Upload, Info, HelpCircle } from 'lucide-react';
@@ -12,6 +11,7 @@ import PointAnimation from '@/components/PointAnimation';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ProfileImageUpload from '@/components/ProfileImageUpload';
 
 interface PointTransaction {
   id: string;
@@ -231,7 +231,7 @@ const RewardCard = ({ reward }: { reward: Reward }) => {
   
   const handleRedeem = () => {
     if (canRedeem) {
-      updatePoints(-reward.pointsCost);
+      updatePoints(-reward.pointsCost, "rewards", `Redeemed ${reward.title}`);
       toast({
         title: "Reward Redeemed!",
         description: `You've successfully redeemed ${reward.title}. Check your email for details.`,
@@ -349,7 +349,7 @@ const PointAllocationRules = () => {
 };
 
 const Points = () => {
-  const { user, updatePoints } = useAuth();
+  const { user, updatePoints, updateProfileImage } = useAuth();
   const { toast } = useToast();
   const totalPoints = user?.points || 0;
   const [activeTab, setActiveTab] = useState('history');
@@ -359,47 +359,36 @@ const Points = () => {
   const [pointText, setPointText] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showRules, setShowRules] = useState(false);
+  const [showProfileUpload, setShowProfileUpload] = useState(false);
   
-  // Load profile image from localStorage
   useEffect(() => {
     const storedImage = localStorage.getItem('user-profile-image');
     if (storedImage) {
       setProfileImage(storedImage);
+    } else if (user?.profileImage) {
+      setProfileImage(user.profileImage);
     }
-  }, []);
+  }, [user]);
 
-  // Demo function to upload profile image
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        if (e.target && typeof e.target.result === 'string') {
-          setProfileImage(e.target.result);
-          localStorage.setItem('user-profile-image', e.target.result);
-          toast({
-            title: "Profile Image Updated",
-            description: "Your profile image has been successfully updated."
-          });
-        }
-      };
-      
-      reader.readAsDataURL(file);
+  const handleProfileUpdate = (imageUrl: string) => {
+    setProfileImage(imageUrl);
+    localStorage.setItem('user-profile-image', imageUrl);
+    if (updateProfileImage) {
+      updateProfileImage(imageUrl);
     }
+    toast({
+      title: "Profile Image Updated",
+      description: "Your profile image has been successfully updated."
+    });
   };
 
-  // Demo function to simulate earning points
   const simulateEarnPoints = (amount: number, description: string, category: 'event' | 'facility' | 'library' | 'store' | 'attendance' | 'academic', details?: string) => {
-    // Show animation
     setEarnedPoints(amount);
     setPointText(`${amount} Points Earned!`);
     setShowPointAnimation(true);
     
-    // Update points in auth context
-    updatePoints(amount);
+    updatePoints(amount, category, description);
     
-    // Add new transaction
     const newTransaction: PointTransaction = {
       id: `pt${Date.now()}`,
       description,
@@ -412,7 +401,6 @@ const Points = () => {
     setPointTransactions(prev => [newTransaction, ...prev]);
   };
 
-  // Determine user tier based on points
   const getUserTier = () => {
     if (totalPoints >= 1000) return { name: "Platinum", next: "Maximum tier reached", progress: 100, color: "bg-purple-600" };
     if (totalPoints >= 500) return { name: "Gold", next: "Platinum Tier (1000)", progress: (totalPoints - 500) / 5, color: "bg-yellow-500" };
@@ -437,7 +425,7 @@ const Points = () => {
             <div className="flex-1">
               <div className="flex items-center">
                 <div className="relative mr-4">
-                  <Avatar className="h-16 w-16 border-2 border-white">
+                  <Avatar className="h-16 w-16 border-2 border-white cursor-pointer" onClick={() => setShowProfileUpload(true)}>
                     {profileImage ? (
                       <AvatarImage src={profileImage} alt={user?.name || "User"} />
                     ) : (
@@ -447,18 +435,12 @@ const Points = () => {
                     )}
                   </Avatar>
                   <div className="absolute -bottom-1 -right-1">
-                    <label htmlFor="profile-upload" className="cursor-pointer">
-                      <div className="bg-campus-primary text-white p-1 rounded-full">
-                        <Upload className="h-3 w-3" />
-                      </div>
-                    </label>
-                    <input 
-                      id="profile-upload" 
-                      type="file" 
-                      className="hidden" 
-                      accept="image/*" 
-                      onChange={handleImageUpload}
-                    />
+                    <div 
+                      className="bg-campus-primary text-white p-1 rounded-full cursor-pointer"
+                      onClick={() => setShowProfileUpload(true)}
+                    >
+                      <Upload className="h-3 w-3" />
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -589,6 +571,23 @@ const Points = () => {
             </DialogDescription>
           </DialogHeader>
           <PointAllocationRules />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showProfileUpload} onOpenChange={setShowProfileUpload}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-campus-primary">Update Profile Picture</DialogTitle>
+            <DialogDescription>
+              Upload a new profile picture to personalize your account
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <ProfileImageUpload
+              currentImage={profileImage || undefined}
+              onImageUpdate={handleProfileUpdate}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </Layout>
