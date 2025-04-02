@@ -9,7 +9,7 @@ const About = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-campus-primary mb-4">About CampusHub</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Revolutionizing how students and staff access and utilize campus resources.
+            Revolutionizing how students and staff access and utilize campus resources at College of Engineering Aranmula.
           </p>
         </div>
 
@@ -79,14 +79,14 @@ const About = () => {
         <div className="bg-campus-light p-8 rounded-lg mb-16">
           <h2 className="text-2xl font-bold text-campus-secondary mb-6 text-center">Our Team</h2>
           <p className="text-gray-700 text-center max-w-3xl mx-auto mb-8">
-            CampusHub was developed by a passionate team of students and staff who recognized the need for better resource management on campus.
+            CampusHub was developed by a passionate team of students from College of Engineering Aranmula who recognized the need for better resource management on campus.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { name: "Alex Johnson", role: "Project Lead", image: "https://randomuser.me/api/portraits/men/32.jpg" },
-              { name: "Samantha Lee", role: "UI/UX Designer", image: "https://randomuser.me/api/portraits/women/44.jpg" },
-              { name: "Marcus Chen", role: "Full Stack Developer", image: "https://randomuser.me/api/portraits/men/46.jpg" },
-              { name: "Taylor Williams", role: "Resource Coordinator", image: "https://randomuser.me/api/portraits/women/65.jpg" }
+              { name: "Albin Biju", role: "Team Lead", image: "https://randomuser.me/api/portraits/men/32.jpg" },
+              { name: "Aromal M", role: "Developer", image: "https://randomuser.me/api/portraits/men/44.jpg" },
+              { name: "Ansel A Jiji", role: "UI/UX Designer", image: "https://randomuser.me/api/portraits/men/46.jpg" },
+              { name: "Christo Mathew George", role: "Backend Developer", image: "https://randomuser.me/api/portraits/men/65.jpg" }
             ].map((member, index) => (
               <div key={index} className="bg-white p-4 rounded-lg shadow-md text-center">
                 <img 

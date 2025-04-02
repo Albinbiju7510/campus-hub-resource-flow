@@ -1,63 +1,88 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Bell, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Mail, User, Calendar } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'alert' | 'success';
+  type: 'info' | 'alert' | 'success' | 'message';
   date: string;
   read: boolean;
+  sender?: string;
 }
 
-const notifications: Notification[] = [
-  {
-    id: 'n1',
-    title: 'Library Extended Hours',
-    message: 'The main library will be open until midnight during finals week (May 1-7).',
-    type: 'info',
-    date: '2023-04-25T14:30:00',
-    read: false
-  },
-  {
-    id: 'n2',
-    title: 'Campus Store Sale',
-    message: 'Enjoy 20% off on all campus merchandise this weekend!',
-    type: 'info',
-    date: '2023-04-24T09:15:00',
-    read: false
-  },
-  {
-    id: 'n3',
-    title: 'Scheduled Maintenance',
-    message: 'The science lab will be closed for maintenance on April 30th.',
-    type: 'alert',
-    date: '2023-04-23T16:45:00',
-    read: true
-  },
-  {
-    id: 'n4',
-    title: 'Points Added',
-    message: 'You earned 50 points for attending the campus cleanup event!',
-    type: 'success',
-    date: '2023-04-22T11:20:00',
-    read: true
-  },
-  {
-    id: 'n5',
-    title: 'Booking Confirmed',
-    message: 'Your study room reservation for April 28th has been confirmed.',
-    type: 'success',
-    date: '2023-04-21T13:10:00',
-    read: true
-  }
-];
+const Notifications = () => {
+  const { user, users } = useAuth();
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [activeTab, setActiveTab] = useState('all');
 
-const NotificationItem = ({ notification }: { notification: Notification }) => {
+  // Fetch notifications from localStorage
+  useEffect(() => {
+    const storedNotifications = localStorage.getItem('campushub-notifications');
+    if (storedNotifications) {
+      const parsedNotifications = JSON.parse(storedNotifications);
+      setNotifications(parsedNotifications);
+    } else {
+      // Sample notifications if none exist
+      const initialNotifications: Notification[] = [
+        {
+          id: 'n1',
+          title: 'Library Extended Hours',
+          message: 'The main library will be open until midnight during finals week (May 1-7).',
+          type: 'info',
+          date: new Date().toISOString(),
+          read: false,
+          sender: 'Administration'
+        },
+        {
+          id: 'n2',
+          title: 'Campus Store Sale',
+          message: 'Enjoy 20% off on all campus merchandise this weekend!',
+          type: 'info',
+          date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+          read: false,
+          sender: 'Campus Store'
+        },
+        {
+          id: 'n3',
+          title: 'Scheduled Maintenance',
+          message: 'The science lab will be closed for maintenance on April 30th.',
+          type: 'alert',
+          date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+          read: true,
+          sender: 'Facilities Department'
+        },
+        {
+          id: 'n4',
+          title: 'Points Added',
+          message: 'You earned 50 points for attending the campus cleanup event!',
+          type: 'success',
+          date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+          read: true
+        },
+        {
+          id: 'n5',
+          title: 'Welcome Message',
+          message: 'Welcome to CampusHub! We\'re excited to have you join our platform.',
+          type: 'message',
+          date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+          read: true,
+          sender: 'Principal'
+        }
+      ];
+      setNotifications(initialNotifications);
+      localStorage.setItem('campushub-notifications', JSON.stringify(initialNotifications));
+    }
+  }, []);
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'info':
@@ -66,6 +91,8 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'message':
+        return <Mail className="h-5 w-5 text-purple-500" />;
       default:
         return <Bell className="h-5 w-5 text-gray-500" />;
     }
@@ -73,40 +100,62 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-IN', { 
       month: 'short', 
       day: 'numeric',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  return (
-    <Card className={`mb-4 ${notification.read ? 'bg-white' : 'bg-blue-50'}`}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            {getIcon(notification.type)}
-            <CardTitle className="ml-2 text-lg">{notification.title}</CardTitle>
-          </div>
-          <CardDescription>{formatDate(notification.date)}</CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <p className="text-gray-700">{notification.message}</p>
-      </CardContent>
-      <CardFooter className="flex justify-end pt-2">
-        {!notification.read && (
-          <Button variant="ghost" size="sm">
-            Mark as Read
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  );
-};
+  const markAsRead = (id: string) => {
+    const updatedNotifications = notifications.map(notification => 
+      notification.id === id ? { ...notification, read: true } : notification
+    );
+    setNotifications(updatedNotifications);
+    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+    toast({
+      title: "Notification marked as read",
+      description: "This notification has been marked as read."
+    });
+  };
 
-const Notifications = () => {
+  const markAllAsRead = () => {
+    const updatedNotifications = notifications.map(notification => ({ ...notification, read: true }));
+    setNotifications(updatedNotifications);
+    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+    toast({
+      title: "All notifications marked as read",
+      description: "All notifications have been marked as read."
+    });
+  };
+
+  const deleteNotification = (id: string) => {
+    const updatedNotifications = notifications.filter(notification => notification.id !== id);
+    setNotifications(updatedNotifications);
+    localStorage.setItem('campushub-notifications', JSON.stringify(updatedNotifications));
+    toast({
+      title: "Notification deleted",
+      description: "This notification has been removed."
+    });
+  };
+
+  const deleteAllNotifications = () => {
+    setNotifications([]);
+    localStorage.setItem('campushub-notifications', JSON.stringify([]));
+    toast({
+      title: "All notifications deleted",
+      description: "All notifications have been cleared."
+    });
+  };
+
+  const filteredNotifications = notifications.filter(notification => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'unread') return !notification.read;
+    return notification.type === activeTab;
+  });
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -126,18 +175,68 @@ const Notifications = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Recent Notifications</h2>
-            <Button variant="outline" size="sm">
-              Mark All as Read
-            </Button>
-          </div>
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex justify-between items-center mb-4">
+              <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="unread">Unread</TabsTrigger>
+                <TabsTrigger value="info">Announcements</TabsTrigger>
+                <TabsTrigger value="message">Messages</TabsTrigger>
+                <TabsTrigger value="success">Points</TabsTrigger>
+              </TabsList>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={markAllAsRead}>
+                  Mark All as Read
+                </Button>
+                <Button variant="outline" size="sm" onClick={deleteAllNotifications} className="text-red-500 border-red-200 hover:bg-red-50">
+                  Clear All
+                </Button>
+              </div>
+            </div>
 
-          <div>
-            {notifications.map(notification => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </div>
+            <TabsContent value={activeTab} className="mt-0">
+              {filteredNotifications.length > 0 ? (
+                filteredNotifications.map(notification => (
+                  <Card key={notification.id} className={`mb-4 ${notification.read ? 'bg-white' : 'bg-blue-50'}`}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center">
+                          {getIcon(notification.type)}
+                          <CardTitle className="ml-2 text-lg">{notification.title}</CardTitle>
+                        </div>
+                        <CardDescription>{formatDate(notification.date)}</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <p className="text-gray-700 mb-2">{notification.message}</p>
+                      {notification.sender && (
+                        <div className="flex items-center text-gray-500 text-sm mt-2">
+                          <User className="h-4 w-4 mr-1" />
+                          <span>From: {notification.sender}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                    <CardFooter className="flex justify-end pt-2 space-x-2">
+                      {!notification.read && (
+                        <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
+                          Mark as Read
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => deleteNotification(notification.id)}>
+                        Delete
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Bell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500">No notifications</h3>
+                  <p className="text-gray-400">You don't have any {activeTab !== 'all' ? activeTab : ''} notifications at the moment.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </Layout>
