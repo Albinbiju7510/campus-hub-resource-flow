@@ -1,8 +1,7 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GitHub, Linkedin, Mail, Phone } from 'lucide-react';
+import { Github, Linkedin, Mail, Phone } from 'lucide-react';
 
 const About = () => {
   return (
@@ -99,7 +98,7 @@ const About = () => {
                 </p>
                 <div className="flex justify-center space-x-4">
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
-                    <GitHub className="h-5 w-5" />
+                    <Github className="h-5 w-5" />
                   </a>
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
@@ -131,7 +130,7 @@ const About = () => {
                 </p>
                 <div className="flex justify-center space-x-4">
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
-                    <GitHub className="h-5 w-5" />
+                    <Github className="h-5 w-5" />
                   </a>
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
@@ -163,7 +162,7 @@ const About = () => {
                 </p>
                 <div className="flex justify-center space-x-4">
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
-                    <GitHub className="h-5 w-5" />
+                    <Github className="h-5 w-5" />
                   </a>
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
@@ -195,7 +194,7 @@ const About = () => {
                 </p>
                 <div className="flex justify-center space-x-4">
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
-                    <GitHub className="h-5 w-5" />
+                    <Github className="h-5 w-5" />
                   </a>
                   <a href="#" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
