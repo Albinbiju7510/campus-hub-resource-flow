@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
@@ -11,6 +10,7 @@ interface User {
   points: number;
   profileImage?: string;
   activityHistory?: ActivityRecord[];
+  bookings?: FacilityBooking[];
 }
 
 interface ActivityRecord {
@@ -20,6 +20,16 @@ interface ActivityRecord {
   pointsEarned: number;
   timestamp: number;
   category: string;
+}
+
+interface FacilityBooking {
+  id: string;
+  resourceId: string;
+  resourceName: string;
+  date: string;
+  timeSlot: string;
+  bookingTime: number;
+  cooldownUntil: number;
 }
 
 interface Notification {
@@ -39,12 +49,13 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => boolean;
-  signup: (userData: Omit<User, 'id' | 'points' | 'activityHistory'> & { password: string }) => boolean;
+  signup: (userData: Omit<User, 'id' | 'points' | 'activityHistory' | 'bookings'> & { password: string }) => boolean;
   logout: () => void;
   updatePoints: (points: number, category: string, description: string) => void;
   updateProfileImage: (imageUrl: string) => void;
   isAdmin: () => boolean;
   isPrincipal: () => boolean;
+  canAccessAdminDashboard: () => boolean;
   users: Array<User & { password: string }>;
   deleteUser: (userId: string) => boolean;
   sendNotification: (title: string, body: string, sender: string, options?: {
@@ -56,6 +67,9 @@ interface AuthContextType {
   getUserNotifications: () => Notification[];
   markNotificationAsRead: (notificationId: string) => void;
   getActivityHistory: () => ActivityRecord[];
+  addFacilityBooking: (booking: Omit<FacilityBooking, 'id'>) => void;
+  getUserBookings: () => FacilityBooking[];
+  canBookResource: (resourceId: string) => {canBook: boolean, cooldownRemaining: number};
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -68,12 +82,16 @@ const AuthContext = createContext<AuthContextType>({
   updateProfileImage: () => {},
   isAdmin: () => false,
   isPrincipal: () => false,
+  canAccessAdminDashboard: () => false,
   users: [],
   deleteUser: () => false,
   sendNotification: () => {},
   getUserNotifications: () => [],
   markNotificationAsRead: () => {},
   getActivityHistory: () => [],
+  addFacilityBooking: () => {},
+  getUserBookings: () => [],
+  canBookResource: () => ({canBook: false, cooldownRemaining: 0}),
 });
 
 // Local storage keys
@@ -87,7 +105,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Load user data from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem(USER_STORAGE_KEY);
     const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
@@ -101,7 +118,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedUsers) {
       setUsers(JSON.parse(storedUsers));
     } else {
-      // Initialize with sample users if no users exist
       const initialUsers = [
         {
           id: 'u1',
@@ -130,7 +146,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               timestamp: Date.now() - 86400000 * 10,
               category: 'event'
             }
-          ]
+          ],
+          bookings: []
         },
         {
           id: 'u2',
@@ -140,7 +157,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'admin' as const,
           department: 'Administration',
           points: 0,
-          profileImage: 'https://randomuser.me/api/portraits/men/44.jpg'
+          profileImage: 'https://randomuser.me/api/portraits/men/44.jpg',
+          bookings: []
         },
         {
           id: 'u3',
@@ -150,7 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'principal' as const,
           department: 'Administration',
           points: 0,
-          profileImage: 'https://randomuser.me/api/portraits/men/65.jpg'
+          profileImage: 'https://randomuser.me/api/portraits/men/65.jpg',
+          bookings: []
         }
       ];
       
@@ -161,7 +180,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedNotifications) {
       setNotifications(JSON.parse(storedNotifications));
     } else {
-      // Initialize with sample notifications
       const initialNotifications: Notification[] = [
         {
           id: 'n1',
@@ -201,8 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const signup = (userData: Omit<User, 'id' | 'points' | 'activityHistory'> & { password: string }): boolean => {
-    // Check if email already exists
+  const signup = (userData: Omit<User, 'id' | 'points' | 'activityHistory' | 'bookings'> & { password: string }): boolean => {
     if (users.some(u => u.email === userData.email)) {
       return false;
     }
@@ -211,18 +228,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...userData,
       id: `u${Date.now()}`,
       points: 0,
-      activityHistory: []
+      activityHistory: [],
+      bookings: []
     };
     
     const updatedUsers = [...users, newUser];
     setUsers(updatedUsers);
     
-    // Auto-login after signup
     const { password, ...userWithoutPassword } = newUser;
     setUser(userWithoutPassword);
     setIsAuthenticated(true);
     
-    // Update localStorage
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userWithoutPassword));
     
@@ -237,7 +253,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePoints = (points: number, category: string, description: string) => {
     if (user) {
-      // Create new activity record
       const newActivity: ActivityRecord = {
         id: `a${Date.now()}`,
         type: category,
@@ -250,7 +265,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                  category.toLowerCase().includes('store') ? 'store' : 'other'
       };
 
-      // Update user history and points
       const updatedHistory = user.activityHistory ? [...user.activityHistory, newActivity] : [newActivity];
       
       const updatedUser = { 
@@ -262,7 +276,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       
-      // Also update in users array
       const updatedUsers = users.map(u => {
         if (u.id === user.id) {
           return { 
@@ -285,7 +298,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       
-      // Also update in users array
       const updatedUsers = users.map(u => {
         if (u.id === user.id) {
           return { ...u, profileImage: imageUrl };
@@ -298,20 +310,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Function to delete a user (admin only)
   const deleteUser = (userId: string): boolean => {
     if (!user || (user.role !== 'admin' && user.role !== 'principal')) {
       return false;
     }
 
-    // Don't allow deleting yourself
     if (userId === user.id) {
       return false;
     }
 
     const updatedUsers = users.filter(u => u.id !== userId);
     if (updatedUsers.length === users.length) {
-      // No user was deleted
       return false;
     }
 
@@ -320,17 +329,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
-  // Helper function to check if the current user is an admin
   const isAdmin = (): boolean => {
     return user?.role === 'admin';
   };
 
-  // Helper function to check if the current user is a principal
   const isPrincipal = (): boolean => {
     return user?.role === 'principal';
   };
 
-  // Function to send a notification to users
+  const canAccessAdminDashboard = (): boolean => {
+    return user?.role === 'admin' || user?.role === 'principal';
+  };
+
   const sendNotification = (title: string, body: string, sender: string, options?: {
     targetUsers?: string[],
     targetDepartment?: string,
@@ -355,32 +365,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updatedNotifications));
   };
 
-  // Function to get notifications for the current user
   const getUserNotifications = () => {
     if (!user) return [];
     
     return notifications.filter(notification => {
-      // If notification has specific target users, check if current user is included
       if (notification.targetUsers?.length) {
         return notification.targetUsers.includes(user.id);
       }
       
-      // If notification targets a specific department
       if (notification.targetDepartment && user.department) {
         return notification.targetDepartment === user.department;
       }
       
-      // If notification targets a specific year (for students)
       if (notification.targetYear && user.year) {
         return notification.targetYear === user.year;
       }
       
-      // If no targeting specified, assume it's for everyone
       return true;
     });
   };
 
-  // Function to mark a notification as read
   const markNotificationAsRead = (notificationId: string) => {
     const updatedNotifications = notifications.map(notification => 
       notification.id === notificationId ? { ...notification, read: true } : notification
@@ -390,9 +394,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updatedNotifications));
   };
 
-  // Function to get activity history for the current user
   const getActivityHistory = () => {
     return user?.activityHistory || [];
+  };
+
+  const addFacilityBooking = (booking: Omit<FacilityBooking, 'id'>) => {
+    if (user) {
+      const newBooking: FacilityBooking = {
+        ...booking,
+        id: `b${Date.now()}`,
+      };
+
+      const userBookings = user.bookings || [];
+      const updatedBookings = [...userBookings, newBooking];
+      
+      const updatedUser = { 
+        ...user, 
+        bookings: updatedBookings
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      
+      const updatedUsers = users.map(u => {
+        if (u.id === user.id) {
+          return { 
+            ...u, 
+            bookings: updatedBookings
+          };
+        }
+        return u;
+      });
+      
+      setUsers(updatedUsers);
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+    }
+  };
+
+  const getUserBookings = (): FacilityBooking[] => {
+    return user?.bookings || [];
+  };
+
+  const canBookResource = (resourceId: string): {canBook: boolean, cooldownRemaining: number} => {
+    if (!user) {
+      return { canBook: false, cooldownRemaining: 0 };
+    }
+
+    const bookings = user.bookings || [];
+    const now = Date.now();
+    
+    const latestBooking = bookings
+      .filter(b => b.resourceId === resourceId)
+      .sort((a, b) => b.bookingTime - a.bookingTime)[0];
+    
+    if (!latestBooking) {
+      return { canBook: true, cooldownRemaining: 0 };
+    }
+    
+    const cooldownRemaining = Math.max(0, latestBooking.cooldownUntil - now);
+    return {
+      canBook: cooldownRemaining <= 0,
+      cooldownRemaining
+    };
   };
 
   return (
@@ -407,12 +470,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfileImage,
         isAdmin, 
         isPrincipal,
+        canAccessAdminDashboard,
         users,
         deleteUser,
         sendNotification,
         getUserNotifications,
         markNotificationAsRead,
-        getActivityHistory
+        getActivityHistory,
+        addFacilityBooking,
+        getUserBookings,
+        canBookResource
       }}
     >
       {children}

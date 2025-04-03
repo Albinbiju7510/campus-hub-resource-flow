@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from '@/components/ui/textarea';
 
 const AdminUsers = () => {
-  const { users, isAdmin, isPrincipal, deleteUser, sendNotification, user: currentUser } = useAuth();
+  const { users, isAdmin, isPrincipal, deleteUser, sendNotification, user: currentUser, canAccessAdminDashboard } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +44,18 @@ const AdminUsers = () => {
   const [messageBody, setMessageBody] = useState('');
   
   // Redirect if not admin or principal
-  if (!isAdmin() && !isPrincipal()) {
+  useEffect(() => {
+    if (!canAccessAdminDashboard()) {
+      toast({
+        title: "Access Denied",
+        description: "You do not have permission to access this page.",
+        variant: "destructive",
+      });
+      navigate('/');
+    }
+  }, [canAccessAdminDashboard, navigate, toast]);
+  
+  if (!canAccessAdminDashboard()) {
     return (
       <Layout>
         <div className="max-w-7xl mx-auto py-12 px-4">

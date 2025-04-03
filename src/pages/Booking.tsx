@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import resources from '@/data/resources';
 import PointAnimation from '@/components/PointAnimation';
+import { Clock, AlertCircle } from 'lucide-react';
 
 const Booking = () => {
   const [searchParams] = useSearchParams();
@@ -17,11 +18,23 @@ const Booking = () => {
   const resource = resources.find(r => r.id === resourceId);
   
   const { toast } = useToast();
-  const { user, isAuthenticated, updatePoints } = useAuth();
+  const { user, isAuthenticated, updatePoints, addFacilityBooking, canBookResource } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showPointAnimation, setShowPointAnimation] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
+  const [bookingStatus, setBookingStatus] = useState<{canBook: boolean, cooldownRemaining: number}>({
+    canBook: true,
+    cooldownRemaining: 0
+  });
+
+  // Check if resource can be booked
+  useEffect(() => {
+    if (resourceId && isAuthenticated) {
+      const status = canBookResource(resourceId);
+      setBookingStatus(status);
+    }
+  }, [resourceId, isAuthenticated, canBookResource]);
 
   // If not authenticated, prompt login
   useEffect(() => {
@@ -48,6 +61,17 @@ const Booking = () => {
     '4:00 PM - 5:00 PM',
   ];
 
+  // Format remaining time
+  const formatRemainingTime = (ms: number) => {
+    if (ms <= 0) return "Ready to book";
+    
+    const totalSeconds = Math.ceil(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${minutes}m ${seconds}s`;
+  };
+
   const handleBookNow = () => {
     if (!selectedDate || !selectedTime) {
       toast({
@@ -68,6 +92,15 @@ const Booking = () => {
       return;
     }
 
+    if (!bookingStatus.canBook) {
+      toast({
+        title: "Booking Not Available",
+        description: `You can book this resource again in ${formatRemainingTime(bookingStatus.cooldownRemaining)}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Format the date for display
     const formattedDate = selectedDate.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -78,6 +111,20 @@ const Booking = () => {
 
     // Points to award based on resource type
     const pointsToAward = calculatePointsForResource(resource?.type || '');
+    
+    // Calculate cooldown time (60 minutes for study rooms, 30 minutes for others)
+    const cooldownTime = resource?.type.toLowerCase() === 'study' ? 60 * 60 * 1000 : 30 * 60 * 1000;
+    const now = Date.now();
+    
+    // Add booking record
+    addFacilityBooking({
+      resourceId: resourceId,
+      resourceName: resource?.title || 'Unknown Resource',
+      date: selectedDate.toISOString(),
+      timeSlot: selectedTime,
+      bookingTime: now,
+      cooldownUntil: now + cooldownTime
+    });
     
     // Update points in user profile
     if (pointsToAward > 0) {
@@ -96,6 +143,15 @@ const Booking = () => {
     toast({
       title: "Booking Confirmed!",
       description: `You have booked ${resource ? resource.title : 'this resource'} for ${formattedDate} at ${selectedTime}.${pointsToAward > 0 ? ` You earned ${pointsToAward} points!` : ''}`,
+    });
+    
+    // Reset selection
+    setSelectedTime(null);
+    
+    // Update booking status
+    setBookingStatus({
+      canBook: false,
+      cooldownRemaining: cooldownTime
     });
   };
 
@@ -191,6 +247,18 @@ const Booking = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {resource && !bookingStatus.canBook && (
+                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-yellow-800">Booking Cooldown</h4>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        You can book this resource again in: <span className="font-bold">{formatRemainingTime(bookingStatus.cooldownRemaining)}</span>
+                      </p>
+                    </div>
+                  </div>
+                )}
+              
                 <div>
                   <h3 className="text-md font-medium mb-2">Select a Date</h3>
                   <Calendar
@@ -198,6 +266,7 @@ const Booking = () => {
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     className="border rounded-lg p-3"
+                    disabled={!bookingStatus.canBook}
                   />
                 </div>
                 
@@ -210,6 +279,7 @@ const Booking = () => {
                         variant={selectedTime === time ? "default" : "outline"}
                         className={`text-sm justify-start ${selectedTime === time ? 'bg-campus-primary' : ''}`}
                         onClick={() => setSelectedTime(time)}
+                        disabled={!bookingStatus.canBook}
                       >
                         {time}
                       </Button>
@@ -223,6 +293,12 @@ const Booking = () => {
                     <p className="text-sm text-blue-700">
                       You'll earn <span className="font-bold">{calculatePointsForResource(resource.type)} points</span> for booking and using this facility!
                     </p>
+                    {resource.type.toLowerCase() === 'study' && (
+                      <p className="text-sm text-blue-700 mt-2 flex items-center">
+                        <Clock className="h-3 w-3 mr-1 inline-block" />
+                        Cooldown period: 60 minutes between bookings
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -230,9 +306,9 @@ const Booking = () => {
                 <Button 
                   className="w-full bg-campus-primary hover:bg-blue-800"
                   onClick={handleBookNow}
-                  disabled={!resource}
+                  disabled={!resource || !bookingStatus.canBook}
                 >
-                  Book Now
+                  {!bookingStatus.canBook ? `Available in ${formatRemainingTime(bookingStatus.cooldownRemaining)}` : "Book Now"}
                 </Button>
               </CardFooter>
             </Card>

@@ -21,7 +21,7 @@ const Navbar = () => {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, isAdmin, isPrincipal } = useAuth();
+  const { user, isAuthenticated, logout, canAccessAdminDashboard } = useAuth();
 
   // Show welcome dialog when user first logs in
   useEffect(() => {
@@ -68,7 +68,7 @@ const Navbar = () => {
                     <Link to="/points" className={`${isActive('/points')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                       Points
                     </Link>
-                    {(isAdmin() || isPrincipal()) && (
+                    {canAccessAdminDashboard() && (
                       <Link to="/admin" className={`${isActive('/admin')} border-b-2 px-1 pt-1 pb-3 text-sm font-medium`}>
                         Dashboard
                       </Link>
@@ -108,7 +108,7 @@ const Navbar = () => {
                         ) : null}
                       </Button>
                     </Link>
-                    {(isAdmin() || isPrincipal()) && (
+                    {canAccessAdminDashboard() && (
                       <Link to="/admin">
                         <Button variant="ghost" size="icon">
                           <ShieldAlert className="h-5 w-5" />
@@ -135,7 +135,7 @@ const Navbar = () => {
                           <User className="mr-2 h-4 w-4" />
                           <span>Profile</span>
                         </DropdownMenuItem>
-                        {(isAdmin() || isPrincipal()) && (
+                        {canAccessAdminDashboard() && (
                           <DropdownMenuItem onClick={() => navigate('/admin')}>
                             <ShieldAlert className="mr-2 h-4 w-4" />
                             <span>Admin Dashboard</span>
@@ -196,7 +196,7 @@ const Navbar = () => {
                 <Link to="/points" className={`${isActive('/points') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
                   Points
                 </Link>
-                {(isAdmin() || isPrincipal()) && (
+                {canAccessAdminDashboard() && (
                   <Link to="/admin" className={`${isActive('/admin') ? 'bg-campus-light border-campus-primary text-campus-primary' : 'border-transparent text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
                     Admin Dashboard
                   </Link>
