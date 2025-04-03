@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, MapPin, Phone, User, Github, Linkedin } from 'lucide-react';
+import { Mail, MapPin, Phone, User, Github, Linkedin, Instagram } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,7 +16,8 @@ const teamMembers = [
     image: "/lovable-uploads/b8392cde-b520-4771-b8ff-a9453b320341.png",
     email: "albinbiju75100@gmail.com",
     github: "https://github.com/Albinbiju7510",
-    linkedin: "https://www.linkedin.com/in/albinbiju/"
+    linkedin: "https://www.linkedin.com/in/albinbiju/",
+    instagram: "https://www.instagram.com/mr.___infinity__/"
   },
   {
     name: "Aromal M",
@@ -25,7 +25,8 @@ const teamMembers = [
     image: "/lovable-uploads/6c71d2a3-9a9c-410e-8b71-47df9261bf64.png",
     email: "aromalmanoj100@gmail.com",
     github: "https://github.com/aromalm",
-    linkedin: "https://www.linkedin.com/in/aromal-manoj-844454255/"
+    linkedin: "https://www.linkedin.com/in/aromal-manoj-844454255/",
+    instagram: "https://www.instagram.com/_ar_om_al_._/"
   },
   {
     name: "Ansel A Jiji",
@@ -33,7 +34,8 @@ const teamMembers = [
     image: "/lovable-uploads/080d95a4-55f1-4a4f-8ace-5c0411a273f4.png",
     email: "anseljiji@gmail.com",
     github: "https://github.com/anseljiji",
-    linkedin: "https://www.linkedin.com/in/ansel-a-jiji-a8a9a2359/"
+    linkedin: "https://www.linkedin.com/in/ansel-a-jiji-a8a9a2359/",
+    instagram: "https://www.instagram.com/_royal_kid_o_/"
   },
   {
     name: "Christo Mathew George",
@@ -41,7 +43,8 @@ const teamMembers = [
     image: "/lovable-uploads/786cb096-9d98-48b2-9ef6-b1560abab967.png",
     email: "christomathewgeorge7@gmail.com",
     github: "https://github.com/christomathew",
-    linkedin: "https://www.linkedin.com/in/christo-mathew-george-a4932a255/"
+    linkedin: "https://www.linkedin.com/in/christo-mathew-george-a4932a255/",
+    instagram: "https://www.instagram.com/christo_mathew7/"
   }
 ];
 
@@ -178,6 +181,7 @@ const Contact = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-campus-primary"
+                    title="GitHub"
                   >
                     <Github className="h-5 w-5" />
                   </a>
@@ -186,8 +190,18 @@ const Contact = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-campus-primary"
+                    title="LinkedIn"
                   >
                     <Linkedin className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href={member.instagram} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-campus-primary"
+                    title="Instagram"
+                  >
+                    <Instagram className="h-5 w-5" />
                   </a>
                 </CardFooter>
               </Card>
