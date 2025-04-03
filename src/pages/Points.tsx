@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,21 +7,19 @@ import PointAnimation from '@/components/PointAnimation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 
-// Import our newly created components
 import { PointsHistory } from '@/components/points/PointsHistory';
 import { RewardsList } from '@/components/points/RewardsList';
 import { PointAllocationRules } from '@/components/points/PointAllocationRules';
 import { UserProfileCard } from '@/components/points/UserProfileCard';
 import { ActionCards } from '@/components/points/ActionCards';
 
-// Import the data
-import { initialTransactions, rewards, pointsAllocationRules } from '@/data/pointsData';
+import { initialTransactions, rewards, pointsAllocationRules, PointTransaction } from '@/data/pointsData';
 
 const Points = () => {
   const { user, updatePoints, updateProfileImage } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('history');
-  const [pointTransactions, setPointTransactions] = useState(initialTransactions);
+  const [pointTransactions, setPointTransactions] = useState<PointTransaction[]>(initialTransactions);
   const [showPointAnimation, setShowPointAnimation] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
   const [pointText, setPointText] = useState('');
@@ -58,7 +55,7 @@ const Points = () => {
     
     updatePoints(amount, category, description);
     
-    const newTransaction = {
+    const newTransaction: PointTransaction = {
       id: `pt${Date.now()}`,
       description,
       points: amount,

@@ -1,9 +1,33 @@
 
-import { type Reward } from '@/components/points/RewardsList';
-import { type AllocationCategory } from '@/components/points/PointAllocationRules';
+export interface PointTransaction {
+  id: string;
+  description: string;
+  points: number;
+  category: 'facility' | 'event' | 'academic' | 'library' | 'store' | 'attendance';
+  date: string;
+  details?: string;
+}
+
+export interface Reward {
+  id: string;
+  title: string;
+  description: string;
+  pointsCost: number;
+  image: string;
+  available: boolean;
+  originalPrice: string;
+}
+
+export interface AllocationCategory {
+  category: string;
+  allocations: {
+    activity: string;
+    points: string;
+  }[];
+}
 
 // Points Transactions History
-export const initialTransactions = [
+export const initialTransactions: PointTransaction[] = [
   {
     id: 'pt1',
     description: 'Participated in Coding Workshop',
