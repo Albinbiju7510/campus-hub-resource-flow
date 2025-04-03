@@ -1,21 +1,39 @@
 
-import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import resources from '@/data/resources';
+import PointAnimation from '@/components/PointAnimation';
 
 const Booking = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const resourceId = searchParams.get('resource') || '';
   const resource = resources.find(r => r.id === resourceId);
   
   const { toast } = useToast();
+  const { user, isAuthenticated, updatePoints } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [showPointAnimation, setShowPointAnimation] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
+
+  // If not authenticated, prompt login
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book resources.",
+        variant: "destructive",
+      });
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate, toast]);
 
   // Available time slots (mock data)
   const timeSlots = [
@@ -40,6 +58,16 @@ const Booking = () => {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book resources.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
     // Format the date for display
     const formattedDate = selectedDate.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -48,10 +76,45 @@ const Booking = () => {
       day: 'numeric'
     });
 
+    // Points to award based on resource type
+    const pointsToAward = calculatePointsForResource(resource?.type || '');
+    
+    // Update points in user profile
+    if (pointsToAward > 0) {
+      updatePoints(
+        pointsToAward, 
+        'facility', 
+        `Booked ${resource?.title || 'resource'} for ${formattedDate} at ${selectedTime}`
+      );
+      
+      // Set up point animation
+      setEarnedPoints(pointsToAward);
+      setShowPointAnimation(true);
+    }
+
+    // Confirm booking
     toast({
       title: "Booking Confirmed!",
-      description: `You have booked ${resource ? resource.title : 'this resource'} for ${formattedDate} at ${selectedTime}.`,
+      description: `You have booked ${resource ? resource.title : 'this resource'} for ${formattedDate} at ${selectedTime}.${pointsToAward > 0 ? ` You earned ${pointsToAward} points!` : ''}`,
     });
+  };
+
+  // Calculate points based on resource type
+  const calculatePointsForResource = (resourceType: string): number => {
+    switch (resourceType.toLowerCase()) {
+      case 'study':
+        return 10;
+      case 'computer':
+        return 15;
+      case 'lab':
+        return 20;
+      case 'meeting':
+        return 10;
+      case 'sports':
+        return 25;
+      default:
+        return 5;
+    }
   };
 
   return (
@@ -61,6 +124,7 @@ const Booking = () => {
           <h1 className="text-4xl font-bold text-campus-primary mb-4">Book a Resource</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Reserve your preferred campus resource by selecting a date and time slot.
+            Earn points when you book and use campus facilities!
           </p>
         </div>
 
@@ -81,8 +145,7 @@ const Booking = () => {
                       onClick={() => {
                         const newParams = new URLSearchParams(searchParams);
                         newParams.set('resource', r.id);
-                        window.history.pushState({}, '', `?${newParams.toString()}`);
-                        window.location.reload();
+                        navigate({ search: newParams.toString() });
                       }}
                     >
                       <div className="flex items-center">
@@ -107,6 +170,11 @@ const Booking = () => {
                           {r.availability}% Available
                         </span>
                       </div>
+                      {resource && resource.id === r.id && (
+                        <div className="mt-2 text-sm text-green-600 font-medium">
+                          Earn {calculatePointsForResource(r.type)} points when you book and use this facility!
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -148,6 +216,15 @@ const Booking = () => {
                     ))}
                   </div>
                 </div>
+                
+                {resource && (
+                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <h4 className="font-medium text-blue-800 mb-1">Points Reward</h4>
+                    <p className="text-sm text-blue-700">
+                      You'll earn <span className="font-bold">{calculatePointsForResource(resource.type)} points</span> for booking and using this facility!
+                    </p>
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button 
@@ -162,6 +239,14 @@ const Booking = () => {
           </div>
         </div>
       </div>
+      
+      {showPointAnimation && (
+        <PointAnimation 
+          points={earnedPoints} 
+          text={`${earnedPoints} Points Earned!`}
+          onComplete={() => setShowPointAnimation(false)} 
+        />
+      )}
     </Layout>
   );
 };

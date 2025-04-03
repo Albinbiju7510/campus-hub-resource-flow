@@ -46,6 +46,7 @@ interface AuthContextType {
   isAdmin: () => boolean;
   isPrincipal: () => boolean;
   users: Array<User & { password: string }>;
+  deleteUser: (userId: string) => boolean;
   sendNotification: (title: string, body: string, sender: string, options?: {
     targetUsers?: string[],
     targetDepartment?: string,
@@ -68,6 +69,7 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: () => false,
   isPrincipal: () => false,
   users: [],
+  deleteUser: () => false,
   sendNotification: () => {},
   getUserNotifications: () => [],
   markNotificationAsRead: () => {},
@@ -207,7 +209,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const newUser = {
       ...userData,
-      id: `u${users.length + 1}`,
+      id: `u${Date.now()}`,
       points: 0,
       activityHistory: []
     };
@@ -244,7 +246,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: Date.now(),
         category: category.toLowerCase().includes('event') ? 'event' : 
                  category.toLowerCase().includes('academ') ? 'academic' : 
-                 category.toLowerCase().includes('library') || category.toLowerCase().includes('lab') ? 'facility' : 'other'
+                 category.toLowerCase().includes('library') || category.toLowerCase().includes('lab') || category.toLowerCase().includes('facility') ? 'facility' : 
+                 category.toLowerCase().includes('store') ? 'store' : 'other'
       };
 
       // Update user history and points
@@ -293,6 +296,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUsers(updatedUsers);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
     }
+  };
+
+  // Function to delete a user (admin only)
+  const deleteUser = (userId: string): boolean => {
+    if (!user || (user.role !== 'admin' && user.role !== 'principal')) {
+      return false;
+    }
+
+    // Don't allow deleting yourself
+    if (userId === user.id) {
+      return false;
+    }
+
+    const updatedUsers = users.filter(u => u.id !== userId);
+    if (updatedUsers.length === users.length) {
+      // No user was deleted
+      return false;
+    }
+
+    setUsers(updatedUsers);
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+    return true;
   };
 
   // Helper function to check if the current user is an admin
@@ -383,6 +408,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin, 
         isPrincipal,
         users,
+        deleteUser,
         sendNotification,
         getUserNotifications,
         markNotificationAsRead,

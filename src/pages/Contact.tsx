@@ -1,26 +1,94 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone, User, Github, Linkedin } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Team Members Data
+const teamMembers = [
+  {
+    name: "Albin Biju",
+    role: "Team Lead",
+    image: "/placeholder.svg",
+    email: "albinbiju75100@gmail.com",
+    github: "https://github.com/albinbiju",
+    linkedin: "https://linkedin.com/in/albinbiju"
+  },
+  {
+    name: "Aromal M",
+    role: "Team Member",
+    image: "/placeholder.svg",
+    email: "aromalmanoj100@gmail.com",
+    github: "https://github.com/aromalm",
+    linkedin: "https://linkedin.com/in/aromalm"
+  },
+  {
+    name: "Ansel A Jiji",
+    role: "Team Member",
+    image: "/placeholder.svg",
+    email: "anseljiji@gmail.com",
+    github: "https://github.com/anseljiji",
+    linkedin: "https://linkedin.com/in/anseljiji"
+  },
+  {
+    name: "Christo Mathew George",
+    role: "Team Member",
+    image: "/placeholder.svg",
+    email: "christomathewgeorge7@gmail.com",
+    github: "https://github.com/christomathew",
+    linkedin: "https://linkedin.com/in/christomathew"
+  }
+];
 
 const Contact = () => {
   const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
     // In a real app, this would send the form data to a server
-    toast({
-      title: "Message Sent!",
-      description: "We've received your message and will respond shortly.",
-    });
+    // For now we'll simulate the process with a timeout
+    setTimeout(() => {
+      toast({
+        title: "Message Sent!",
+        description: "We've received your message and will respond shortly. The team has been notified.",
+      });
 
-    // Reset form
-    const form = e.target as HTMLFormElement;
-    form.reset();
+      // Show who the message was sent to
+      toast({
+        title: "Notification Sent",
+        description: `Your enquiry has been forwarded to the team: ${teamMembers.map(m => m.name).join(', ')}`,
+        variant: "default"
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+      
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   return (
@@ -40,9 +108,9 @@ const Contact = () => {
             </div>
             <h3 className="text-xl font-semibold text-campus-primary mb-2">Our Location</h3>
             <p className="text-gray-600">
-              123 Campus Avenue<br />
-              University District<br />
-              City, State 12345
+              College of Engineering Aranmula<br />
+              Aranmula P.O, Pathanamthitta<br />
+              Kerala, India 689533
             </p>
           </div>
 
@@ -67,13 +135,63 @@ const Contact = () => {
             </div>
             <h3 className="text-xl font-semibold text-campus-primary mb-2">Call Us</h3>
             <p className="text-gray-600 mb-2">Main Office:</p>
-            <a href="tel:+15551234567" className="text-campus-secondary hover:text-campus-primary">
-              (555) 123-4567
+            <a href="tel:+917510903774" className="text-campus-secondary hover:text-campus-primary">
+              +91 7510903774
             </a>
-            <p className="text-gray-600 mt-2 mb-2">Support Hotline:</p>
-            <a href="tel:+15557891234" className="text-campus-secondary hover:text-campus-primary">
-              (555) 789-1234
+            <p className="text-gray-600 mt-2 mb-2">Student Support:</p>
+            <a href="tel:+917510903774" className="text-campus-secondary hover:text-campus-primary">
+              +91 7510903774
             </a>
+          </div>
+        </div>
+
+        {/* Team Members Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-campus-secondary mb-6 text-center">Meet Our Team</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {teamMembers.map((member, index) => (
+              <Card key={index} className="text-center overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-center mb-2">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={member.image} alt={member.name} />
+                      <AvatarFallback className="bg-campus-primary text-white text-xl">
+                        {member.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <CardTitle className="text-lg">{member.name}</CardTitle>
+                  <CardDescription>{member.role}</CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <a 
+                    href={`mailto:${member.email}`} 
+                    className="text-sm text-gray-600 hover:text-campus-primary flex items-center justify-center gap-1"
+                  >
+                    <Mail className="h-4 w-4" />
+                    <span>{member.email}</span>
+                  </a>
+                </CardContent>
+                <CardFooter className="flex justify-center gap-4 pt-0">
+                  <a 
+                    href={member.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-campus-primary"
+                  >
+                    <Github className="h-5 w-5" />
+                  </a>
+                  <a 
+                    href={member.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-campus-primary"
+                  >
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
 
@@ -86,27 +204,37 @@ const Contact = () => {
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                     Name
                   </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    placeholder="Your name"
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      placeholder="Your name"
+                      className="pl-10 w-full"
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="Your email address"
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="Your email address"
+                      className="pl-10 w-full"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               </div>
               
@@ -121,6 +249,8 @@ const Contact = () => {
                   required
                   placeholder="Message subject"
                   className="w-full"
+                  value={formData.subject}
+                  onChange={handleChange}
                 />
               </div>
               
@@ -135,12 +265,22 @@ const Contact = () => {
                   required
                   placeholder="Your message"
                   className="w-full"
+                  value={formData.message}
+                  onChange={handleChange}
                 />
               </div>
               
-              <Button type="submit" className="w-full md:w-auto bg-campus-primary hover:bg-blue-800">
-                Send Message
+              <Button 
+                type="submit" 
+                className="w-full md:w-auto bg-campus-primary hover:bg-blue-800"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
+              
+              <p className="text-sm text-gray-500 mt-2">
+                Your message will be sent to all team members for prompt assistance.
+              </p>
             </form>
           </div>
 
@@ -155,9 +295,16 @@ const Contact = () => {
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold text-campus-primary mb-2">Can I cancel a booking?</h3>
+                <h3 className="text-lg font-semibold text-campus-primary mb-2">How do I earn points on campus?</h3>
                 <p className="text-gray-600">
-                  Yes, you can cancel a booking up to 2 hours before the scheduled time. Go to your account dashboard and find the booking you wish to cancel.
+                  You can earn points by booking and using campus facilities, participating in events, attending workshops, and through various academic activities. Visit the Points page to see all ways to earn points.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-campus-primary mb-2">How can I redeem my earned points?</h3>
+                <p className="text-gray-600">
+                  Visit the Store page to browse available products and services you can redeem with your points. You can also check the Rewards section on your Points page for special offers.
                 </p>
               </div>
               
@@ -171,7 +318,7 @@ const Contact = () => {
               <div>
                 <h3 className="text-lg font-semibold text-campus-primary mb-2">How do I report an issue with a resource?</h3>
                 <p className="text-gray-600">
-                  Use the contact form on this page or email support@campushub.edu with details about the issue. Include the resource name, date, time, and a description of the problem.
+                  Use the contact form on this page or email our support team at support@campushub.edu with details about the issue. Include the resource name, date, time, and a description of the problem.
                 </p>
               </div>
             </div>

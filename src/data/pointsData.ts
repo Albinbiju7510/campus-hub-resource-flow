@@ -1,167 +1,154 @@
 
-import { PointTransaction } from '@/components/points/PointsHistory';
-import { Reward } from '@/components/points/RewardsList';
-import { AllocationCategory } from '@/components/points/PointAllocationRules';
+import { type Reward } from '@/components/points/RewardsList';
+import { type AllocationCategory } from '@/components/points/PointAllocationRules';
 
-export const initialTransactions: PointTransaction[] = [
+// Points Transactions History
+export const initialTransactions = [
   {
     id: 'pt1',
-    description: 'Attended Campus Cleanup Event',
+    description: 'Participated in Coding Workshop',
     points: 50,
     category: 'event',
-    date: '2023-04-22T11:20:00',
-    details: 'Participated in the annual campus cleanup event, helping to collect waste and beautify the campus grounds for 4 hours.'
+    date: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+    details: 'Participated in the full-day coding workshop organized by the Department of Computer Science'
   },
   {
     id: 'pt2',
-    description: 'Used Study Room for 2 hours',
-    points: 10,
+    description: 'Used Library Resources',
+    points: 15,
     category: 'facility',
-    date: '2023-04-20T15:30:00',
-    details: 'Utilized the premium study room in the Main Library building from 3:30 PM to 5:30 PM.'
+    date: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+    details: 'Used the Main Library study room for 3 hours'
   },
   {
     id: 'pt3',
-    description: 'Borrowed 3 Books from Library',
-    points: 15,
-    category: 'library',
-    date: '2023-04-18T10:45:00',
-    details: 'Borrowed the following books: "Data Structures", "Algorithms Design", and "Computer Networks" for academic purposes.'
-  },
-  {
-    id: 'pt4',
-    description: 'Purchase at Campus Store',
-    points: 25,
-    category: 'store',
-    date: '2023-04-15T14:20:00',
-    details: 'Made a purchase of ₹500 at the campus store, including stationery and college merchandise.'
-  },
-  {
-    id: 'pt5',
-    description: 'Attended Tech Workshop',
-    points: 35,
-    category: 'event',
-    date: '2023-04-10T09:00:00',
-    details: 'Participated in the "Emerging Technologies in Software Development" workshop conducted by the CSE department.'
-  },
-  {
-    id: 'pt6',
-    description: 'Perfect Attendance - April',
+    description: 'Attended Guest Lecture',
     points: 30,
-    category: 'attendance',
-    date: '2023-04-30T23:59:00',
-    details: 'Maintained 100% attendance in all classes for the month of April.'
-  },
-  {
-    id: 'pt7',
-    description: 'Academic Achievement - Quiz Winner',
-    points: 40,
     category: 'academic',
-    date: '2023-04-12T14:30:00',
-    details: 'Secured first place in the departmental technical quiz competition.'
+    date: new Date(Date.now() - 86400000 * 7).toISOString(), // 7 days ago
+    details: 'Attended the industry expert guest lecture on Modern Engineering Practices'
   }
 ];
 
+// Campus Store Rewards
 export const rewards: Reward[] = [
   {
     id: 'r1',
-    title: 'Campus Store Voucher',
-    description: '₹500 off your next purchase at the campus store',
-    pointsCost: 100,
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da',
+    title: 'College T-Shirt',
+    description: 'Official college logo t-shirt, available in multiple sizes',
+    pointsCost: 150,
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
     available: true,
-    originalPrice: '₹500'
+    originalPrice: '₹600'
   },
   {
     id: 'r2',
-    title: 'Cafeteria Meal Pass',
-    description: 'Free meals for a week at the campus café',
-    pointsCost: 150,
-    image: 'https://images.unsplash.com/photo-1518832553480-cd0e625ed3e6',
+    title: 'Cafeteria Meal Voucher',
+    description: 'Free meal voucher for the campus cafeteria',
+    pointsCost: 80,
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
     available: true,
-    originalPrice: '₹700'
+    originalPrice: '₹200'
   },
   {
     id: 'r3',
-    title: 'Premium Study Room Access',
-    description: 'Exclusive access to premium study rooms for a month',
-    pointsCost: 200,
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6',
+    title: '10% Discount on Textbooks',
+    description: 'Get 10% off on textbooks at the campus bookstore',
+    pointsCost: 100,
+    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
     available: true,
-    originalPrice: '₹1,000'
+    originalPrice: 'Up to ₹500 savings'
   },
   {
     id: 'r4',
-    title: 'Campus Merchandise',
-    description: 'Limited edition campus hoodie with college logo',
-    pointsCost: 250,
-    image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633',
-    available: false,
+    title: 'College Hoodie',
+    description: 'Premium college hoodie with embroidered logo',
+    pointsCost: 300,
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+    available: true,
     originalPrice: '₹1,200'
   },
   {
     id: 'r5',
-    title: 'Library Late Fee Waiver',
-    description: 'Get your library late fees waived off (up to ₹300)',
-    pointsCost: 75,
-    image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66',
+    title: 'Free Printing Credit',
+    description: '100 pages of free printing at the campus library',
+    pointsCost: 50,
+    image: 'https://images.unsplash.com/photo-1585241936939-be4099591252?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
     available: true,
-    originalPrice: '₹300'
+    originalPrice: '₹200'
   },
   {
     id: 'r6',
     title: 'Exam Preparation Package',
-    description: 'Study materials, notes, and mock tests for upcoming exams',
-    pointsCost: 180,
-    image: 'https://images.unsplash.com/photo-1588702547919-26089e690ecc',
-    available: true,
-    originalPrice: '₹850'
+    description: 'Study materials, test papers, and a coffee voucher',
+    pointsCost: 200,
+    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+    available: false,
+    originalPrice: '₹750'
   }
 ];
 
+// Point Allocation Rules
 export const pointsAllocationRules: AllocationCategory[] = [
   {
-    category: 'Academic Achievement',
+    category: 'Campus Facilities',
     allocations: [
-      { activity: 'Top rank in semester exams', points: '50-100 pts' },
-      { activity: 'Quiz or competition winner', points: '20-50 pts' },
-      { activity: 'Research paper publication', points: '100 pts' },
-      { activity: 'Academic project completion', points: '30-60 pts' }
+      { activity: 'Library Usage (per hour)', points: '5 points' },
+      { activity: 'Study Room Booking', points: '10 points' },
+      { activity: 'Computer Lab Usage (per hour)', points: '15 points' },
+      { activity: 'Science Lab Usage (per session)', points: '20 points' },
+      { activity: 'Sports Facility Usage (per hour)', points: '25 points' },
+      { activity: 'Conference Room Booking', points: '10 points' },
+      { activity: 'Multimedia Studio Usage (per hour)', points: '20 points' }
     ]
   },
   {
-    category: 'Attendance',
+    category: 'Academic Activities',
     allocations: [
-      { activity: '100% monthly attendance', points: '30 pts' },
-      { activity: '90-99% monthly attendance', points: '20 pts' },
-      { activity: 'No late arrivals in a month', points: '15 pts' }
+      { activity: 'Class Attendance (90% or above per month)', points: '50 points' },
+      { activity: 'Assignment Submission (before deadline)', points: '10 points' },
+      { activity: 'Quiz Participation', points: '15 points' },
+      { activity: 'Research Paper Publication', points: '200 points' },
+      { activity: 'Academic Competition Participation', points: '50 points' },
+      { activity: 'Academic Competition Winner', points: '150 points' },
+      { activity: 'Guest Lecture Attendance', points: '30 points' },
+      { activity: 'Mentor Junior Students (per month)', points: '100 points' }
     ]
   },
   {
-    category: 'Campus Facilities Usage',
+    category: 'Campus Events',
     allocations: [
-      { activity: 'Library visit', points: '5 pts/visit' },
-      { activity: 'Study room booking', points: '5 pts/hour' },
-      { activity: 'Computer lab usage', points: '5 pts/hour' },
-      { activity: 'Sports facility usage', points: '10 pts/session' }
+      { activity: 'Workshop Participation', points: '50 points' },
+      { activity: 'Cultural Event Participation', points: '40 points' },
+      { activity: 'Sports Event Participation', points: '40 points' },
+      { activity: 'Club Meeting Attendance', points: '20 points' },
+      { activity: 'Event Organization Committee', points: '100 points' },
+      { activity: 'Campus Cleanup Drive', points: '75 points' },
+      { activity: 'Blood Donation Camp', points: '100 points' },
+      { activity: 'Tree Plantation Drive', points: '60 points' }
     ]
   },
   {
-    category: 'Events & Activities',
+    category: 'Community Service',
     allocations: [
-      { activity: 'Organizing campus event', points: '50-100 pts' },
-      { activity: 'Event participation', points: '20-30 pts' },
-      { activity: 'Volunteering', points: '20-50 pts' },
-      { activity: 'Workshop/seminar attendance', points: '15-30 pts' }
+      { activity: 'Volunteer Work (per hour)', points: '20 points' },
+      { activity: 'Community Outreach Program', points: '75 points' },
+      { activity: 'Teaching Underprivileged Children (per session)', points: '50 points' },
+      { activity: 'Organizing Charity Events', points: '150 points' },
+      { activity: 'Environmental Awareness Campaign', points: '100 points' },
+      { activity: 'Social Media Management for College', points: '30 points/week' }
     ]
   },
   {
-    category: 'Campus Contribution',
+    category: 'Point Redemptions',
     allocations: [
-      { activity: 'Campus cleanup participation', points: '25-50 pts' },
-      { activity: 'Donation to campus initiatives', points: '10 pts/₹200' },
-      { activity: 'Feedback submission', points: '10 pts' },
-      { activity: 'Peer tutoring', points: '15 pts/hour' }
+      { activity: 'Purchase College Merchandise', points: 'Varies by item' },
+      { activity: 'Cafeteria Meal Voucher', points: '80 points' },
+      { activity: 'Free Printing Credit (100 pages)', points: '50 points' },
+      { activity: 'Textbook Discount (10%)', points: '100 points' },
+      { activity: 'Library Late Fee Waiver', points: '50 points' },
+      { activity: 'Priority Registration for Events', points: '75 points' },
+      { activity: 'Campus Parking Pass (1 month)', points: '200 points' }
     ]
   }
 ];
