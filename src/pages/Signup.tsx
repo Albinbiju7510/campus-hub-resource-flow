@@ -4,11 +4,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, LockKeyhole, BookOpen, Building, ShieldAlert } from 'lucide-react';
+import { User, Mail, LockKeyhole, BookOpen, Building, ShieldAlert, CreditCard } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { InfoIcon } from 'lucide-react';
 
 const Signup = () => {
   const { signup } = useAuth();
@@ -24,7 +25,8 @@ const Signup = () => {
     confirmPassword: '',
     role: 'student' as const,
     department: '',
-    year: ''
+    year: '',
+    ktuid: ''
   });
   
   const [adminData, setAdminData] = useState({
@@ -62,10 +64,6 @@ const Signup = () => {
     setPrincipalData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setStudentData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleStudentSignup = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -78,6 +76,15 @@ const Signup = () => {
       return;
     }
     
+    if (!studentData.ktuid) {
+      toast({
+        variant: "destructive",
+        title: "KTU ID Required",
+        description: "Please enter your KTU ID number",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     setTimeout(() => {
@@ -86,10 +93,10 @@ const Signup = () => {
       
       if (success) {
         toast({
-          title: "Account Created",
-          description: "Welcome to CampusHub! Your student account has been created successfully.",
+          title: "Registration Submitted",
+          description: "Your account has been submitted for approval. You will be notified once approved.",
         });
-        navigate('/');
+        navigate('/login');
       } else {
         toast({
           variant: "destructive",
@@ -215,6 +222,16 @@ const Signup = () => {
               </TabsList>
               
               <TabsContent value="student">
+                {activeTab === 'student' && (
+                  <Alert className="mb-4 bg-blue-50 border-blue-200">
+                    <InfoIcon className="h-4 w-4 text-blue-600" />
+                    <AlertTitle>Please Note</AlertTitle>
+                    <AlertDescription>
+                      Student accounts require approval from an administrator or principal before login.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 <form onSubmit={handleStudentSignup} className="space-y-4 mt-4">
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -235,6 +252,18 @@ const Signup = () => {
                       type="email"
                       placeholder="Email"
                       value={studentData.email}
+                      onChange={handleStudentChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      name="ktuid"
+                      placeholder="KTU ID Number"
+                      value={studentData.ktuid}
                       onChange={handleStudentChange}
                       className="pl-10"
                       required

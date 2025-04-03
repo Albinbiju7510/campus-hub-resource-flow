@@ -14,34 +14,34 @@ const teamMembers = [
   {
     name: "Albin Biju",
     role: "Team Lead",
-    image: "/placeholder.svg",
+    image: "/lovable-uploads/b8392cde-b520-4771-b8ff-a9453b320341.png",
     email: "albinbiju75100@gmail.com",
-    github: "https://github.com/albinbiju",
-    linkedin: "https://linkedin.com/in/albinbiju"
+    github: "https://github.com/Albinbiju7510",
+    linkedin: "https://www.linkedin.com/in/albinbiju/"
   },
   {
     name: "Aromal M",
     role: "Team Member",
-    image: "/placeholder.svg",
+    image: "/lovable-uploads/6c71d2a3-9a9c-410e-8b71-47df9261bf64.png",
     email: "aromalmanoj100@gmail.com",
     github: "https://github.com/aromalm",
-    linkedin: "https://linkedin.com/in/aromalm"
+    linkedin: "https://www.linkedin.com/in/aromal-manoj-844454255/"
   },
   {
     name: "Ansel A Jiji",
     role: "Team Member",
-    image: "/placeholder.svg",
+    image: "/lovable-uploads/080d95a4-55f1-4a4f-8ace-5c0411a273f4.png",
     email: "anseljiji@gmail.com",
     github: "https://github.com/anseljiji",
-    linkedin: "https://linkedin.com/in/anseljiji"
+    linkedin: "https://www.linkedin.com/in/ansel-a-jiji-a8a9a2359/"
   },
   {
     name: "Christo Mathew George",
     role: "Team Member",
-    image: "/placeholder.svg",
+    image: "/lovable-uploads/786cb096-9d98-48b2-9ef6-b1560abab967.png",
     email: "christomathewgeorge7@gmail.com",
     github: "https://github.com/christomathew",
-    linkedin: "https://linkedin.com/in/christomathew"
+    linkedin: "https://www.linkedin.com/in/christo-mathew-george-a4932a255/"
   }
 ];
 
@@ -75,7 +75,7 @@ const Contact = () => {
       // Show who the message was sent to
       toast({
         title: "Notification Sent",
-        description: `Your enquiry has been forwarded to the team: ${teamMembers.map(m => m.name).join(', ')}`,
+        description: `Your enquiry has been forwarded to: albinbiju75100@gmail.com, aromalmanoj100@gmail.com, anseljiji@gmail.com, christomathewgeorge7@gmail.com`,
         variant: "default"
       });
 
@@ -120,12 +120,12 @@ const Contact = () => {
             </div>
             <h3 className="text-xl font-semibold text-campus-primary mb-2">Email Us</h3>
             <p className="text-gray-600 mb-2">General Inquiries:</p>
-            <a href="mailto:info@campushub.edu" className="text-campus-secondary hover:text-campus-primary">
-              info@campushub.edu
+            <a href="mailto:albinbiju75100@gmail.com" className="text-campus-secondary hover:text-campus-primary">
+              albinbiju75100@gmail.com
             </a>
             <p className="text-gray-600 mt-2 mb-2">Support:</p>
-            <a href="mailto:support@campushub.edu" className="text-campus-secondary hover:text-campus-primary">
-              support@campushub.edu
+            <a href="mailto:aromalmanoj100@gmail.com" className="text-campus-secondary hover:text-campus-primary">
+              aromalmanoj100@gmail.com
             </a>
           </div>
 
@@ -318,7 +318,7 @@ const Contact = () => {
               <div>
                 <h3 className="text-lg font-semibold text-campus-primary mb-2">How do I report an issue with a resource?</h3>
                 <p className="text-gray-600">
-                  Use the contact form on this page or email our support team at support@campushub.edu with details about the issue. Include the resource name, date, time, and a description of the problem.
+                  Use the contact form on this page or email our support team at aromalmanoj100@gmail.com with details about the issue. Include the resource name, date, time, and a description of the problem.
                 </p>
               </div>
             </div>

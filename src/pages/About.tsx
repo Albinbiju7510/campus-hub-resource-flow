@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,7 +83,7 @@ const About = () => {
               <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
                 <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" 
+                    src="/lovable-uploads/b8392cde-b520-4771-b8ff-a9453b320341.png" 
                     alt="Albin Biju" 
                     className="h-full w-full object-cover"
                   />
@@ -97,10 +98,10 @@ const About = () => {
                   Leads the development team and oversees the architecture of CampusHub.
                 </p>
                 <div className="flex justify-center space-x-4">
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://github.com/Albinbiju7510" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Github className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://www.linkedin.com/in/albinbiju/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
                   </a>
                   <a href="mailto:albinbiju75100@gmail.com" className="text-gray-500 hover:text-campus-primary">
@@ -114,7 +115,7 @@ const About = () => {
               <div className="h-48 bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center">
                 <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" 
+                    src="/lovable-uploads/6c71d2a3-9a9c-410e-8b71-47df9261bf64.png" 
                     alt="Aromal M" 
                     className="h-full w-full object-cover"
                   />
@@ -129,13 +130,13 @@ const About = () => {
                   Frontend developer focusing on UI/UX design and responsive layouts.
                 </p>
                 <div className="flex justify-center space-x-4">
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://github.com/aromalm" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Github className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://www.linkedin.com/in/aromal-manoj-844454255/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="mailto:aromalmanoj100@gmail.com" className="text-gray-500 hover:text-campus-primary">
                     <Mail className="h-5 w-5" />
                   </a>
                 </div>
@@ -146,7 +147,7 @@ const About = () => {
               <div className="h-48 bg-gradient-to-r from-yellow-500 to-amber-600 flex items-center justify-center">
                 <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" 
+                    src="/lovable-uploads/080d95a4-55f1-4a4f-8ace-5c0411a273f4.png" 
                     alt="Ansel A Jiji" 
                     className="h-full w-full object-cover"
                   />
@@ -161,13 +162,13 @@ const About = () => {
                   Backend developer specializing in database management and API integration.
                 </p>
                 <div className="flex justify-center space-x-4">
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://github.com/anseljiji" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Github className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://www.linkedin.com/in/ansel-a-jiji-a8a9a2359/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="mailto:anseljiji@gmail.com" className="text-gray-500 hover:text-campus-primary">
                     <Mail className="h-5 w-5" />
                   </a>
                 </div>
@@ -178,7 +179,7 @@ const About = () => {
               <div className="h-48 bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center">
                 <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1603415526960-f7e0328c63b1" 
+                    src="/lovable-uploads/786cb096-9d98-48b2-9ef6-b1560abab967.png" 
                     alt="Christo Mathew George" 
                     className="h-full w-full object-cover"
                   />
@@ -193,13 +194,13 @@ const About = () => {
                   Full-stack developer responsible for system integrations and testing.
                 </p>
                 <div className="flex justify-center space-x-4">
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://github.com/christomathew" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Github className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="https://www.linkedin.com/in/christo-mathew-george-a4932a255/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-campus-primary">
                     <Linkedin className="h-5 w-5" />
                   </a>
-                  <a href="#" className="text-gray-500 hover:text-campus-primary">
+                  <a href="mailto:christomathewgeorge7@gmail.com" className="text-gray-500 hover:text-campus-primary">
                     <Mail className="h-5 w-5" />
                   </a>
                 </div>
