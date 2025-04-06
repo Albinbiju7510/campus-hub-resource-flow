@@ -2,7 +2,7 @@
 # CampusHub Database Schema
 
 ## Overview
-This document outlines the recommended database schema for the CampusHub application. For a production environment, we recommend implementing this schema in a proper database system like PostgreSQL through Supabase.
+This document outlines the recommended database schema for the CampusHub (CampusCoin Rewards) application. For a production environment, we recommend implementing this schema in a proper database system like PostgreSQL through Supabase.
 
 ## Tables
 
@@ -20,11 +20,15 @@ CREATE TABLE users (
   year VARCHAR(20),
   points INTEGER DEFAULT 0,
   profile_image TEXT,
-  registration_number VARCHAR(50) UNIQUE,
+  ktuid VARCHAR(50) UNIQUE NOT NULL, -- KTU ID like AEC22CS001
   phone_number VARCHAR(15),
   address TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  last_active TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  approved BOOLEAN DEFAULT FALSE, -- For student approval system
+  approved_by UUID REFERENCES users(id),
+  approved_at TIMESTAMP WITH TIME ZONE
 );
 ```
 
@@ -68,7 +72,7 @@ CREATE TABLE notifications (
 ```
 
 ### 4. User_Notifications
-Junction table to associate notifications with their recipients and track read status.
+Junction table to associate notifications with their recipients and track read/reaction status.
 
 ```sql
 CREATE TABLE user_notifications (
@@ -76,6 +80,7 @@ CREATE TABLE user_notifications (
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   notification_id UUID REFERENCES notifications(id) ON DELETE CASCADE,
   read BOOLEAN DEFAULT FALSE,
+  reaction VARCHAR(20) CHECK (reaction IN (NULL, 'like', 'love', 'haha', 'wow', 'sad', 'angry')),
   delivery_status VARCHAR(20) DEFAULT 'delivered' CHECK (delivery_status IN ('pending', 'delivered', 'failed')),
   read_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -134,6 +139,7 @@ CREATE TABLE resources (
   location VARCHAR(100),
   capacity INTEGER,
   points_per_use INTEGER DEFAULT 0,
+  cooldown_minutes INTEGER DEFAULT 0, -- Cooldown period before booking again
   image_url TEXT,
   available BOOLEAN DEFAULT TRUE,
   maintenance_schedule TEXT,
@@ -159,6 +165,7 @@ CREATE TABLE bookings (
   purpose TEXT,
   approval_by UUID REFERENCES users(id),
   approval_time TIMESTAMP WITH TIME ZONE,
+  cooldown_until TIMESTAMP WITH TIME ZONE, -- When the user can book this resource again
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -198,6 +205,54 @@ CREATE TABLE departments (
   description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+### 11. KTU_IDs
+Stores valid KTU IDs that can be used for registration.
+
+```sql
+CREATE TABLE ktu_ids (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ktuid VARCHAR(50) UNIQUE NOT NULL, -- Format AEC22CS001
+  department VARCHAR(100) NOT NULL,
+  year VARCHAR(20) NOT NULL,
+  batch VARCHAR(20) NOT NULL,
+  is_assigned BOOLEAN DEFAULT FALSE, -- Whether this ID is assigned to a user
+  user_id UUID REFERENCES users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+### 12. Point_Penalties
+Records point deductions from users.
+
+```sql
+CREATE TABLE point_penalties (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  deducted_by UUID REFERENCES users(id),
+  points_deducted INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  category VARCHAR(50) NOT NULL, -- E.g., 'inactivity', 'violation', 'late-return'
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  notes TEXT
+);
+```
+
+### 13. Activity_Logs
+General activity logs for audit purposes.
+
+```sql
+CREATE TABLE activity_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  action VARCHAR(100) NOT NULL,
+  ip_address VARCHAR(50),
+  user_agent TEXT,
+  details JSONB,
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
 
@@ -285,7 +340,8 @@ CREATE POLICY user_notifications_self_update ON user_notifications
 
 3. **Authentication and Authorization**:
    - Set up proper role-based access control
-   - Implement login/registration flows
+   - Implement login/registration flows with KTU ID validation
+   - Create student approval workflow for admin/principal
    - Secure all API endpoints with appropriate RLS policies
 
 4. **Frontend Integration**:
@@ -294,24 +350,30 @@ CREATE POLICY user_notifications_self_update ON user_notifications
    - Create admin dashboards for data management
    - Add profile image upload functionality using Storage
 
-5. **Testing**:
+5. **CampusCoin System Implementation**:
+   - Implement point allocation/deduction logic
+   - Create cooldown system for facility bookings
+   - Develop reward redemption workflow
+   - Set up inactivity penalty system
+
+6. **Testing**:
    - Test RLS policies to ensure data security
-   - Verify notification delivery
+   - Verify notification delivery and reaction system
    - Test points allocation and redemption process
-   - Validate resource booking workflow
+   - Validate resource booking workflow and cooldown timers
 
 ## Sample Queries
 
 ### Get User with Total Points
 ```sql
-SELECT id, name, email, role, department, year, points, profile_image
+SELECT id, name, email, role, department, year, points, profile_image, ktuid, approved
 FROM users
 WHERE id = 'user_id_here';
 ```
 
 ### Get Recent Notifications for User
 ```sql
-SELECT n.id, n.title, n.body, n.sender, n.timestamp, n.type, un.read
+SELECT n.id, n.title, n.body, n.sender, n.timestamp, n.type, un.read, un.reaction
 FROM notifications n
 JOIN user_notifications un ON n.id = un.notification_id
 WHERE un.user_id = 'user_id_here'
@@ -327,26 +389,53 @@ WHERE user_id = 'user_id_here'
 ORDER BY timestamp DESC;
 ```
 
-### Get Available Rewards
+### Get Resource Booking Status with Cooldown
 ```sql
-SELECT id, title, description, points_cost, image_url, original_price, category
-FROM rewards
-WHERE available = TRUE AND (expiry_date IS NULL OR expiry_date > NOW());
-```
-
-### Get Resource Booking Status
-```sql
-SELECT r.name, b.start_time, b.end_time, b.status, b.points_earned
+SELECT r.name, b.start_time, b.end_time, b.status, b.points_earned, b.cooldown_until,
+       CURRENT_TIMESTAMP > b.cooldown_until as can_book_again
 FROM bookings b
 JOIN resources r ON b.resource_id = r.id
-WHERE b.user_id = 'user_id_here' AND b.start_time > NOW()
-ORDER BY b.start_time;
+WHERE b.user_id = 'user_id_here' AND b.resource_id = 'resource_id_here'
+ORDER BY b.start_time DESC
+LIMIT 1;
 ```
 
-### Check Point Allocation Rules
+### Get Pending Student Approvals
 ```sql
-SELECT category, activity_type, base_points, min_points, max_points, description 
-FROM point_rules
-WHERE is_active = TRUE
-ORDER BY category, activity_type;
+SELECT u.id, u.name, u.email, u.ktuid, u.department, u.year, u.created_at,
+       k.is_assigned, k.department as ktuid_department
+FROM users u
+LEFT JOIN ktu_ids k ON u.ktuid = k.ktuid
+WHERE u.role = 'student' AND u.approved = FALSE
+ORDER BY u.created_at;
+```
+
+### Check if KTU ID is Valid and Available
+```sql
+SELECT COUNT(*) > 0 as is_valid,
+       NOT is_assigned as is_available
+FROM ktu_ids
+WHERE ktuid = 'AEC22CS001'
+LIMIT 1;
+```
+
+### Get Inactive Users for Penalty
+```sql
+SELECT id, name, email, ktuid, 
+       EXTRACT(DAY FROM (CURRENT_TIMESTAMP - last_active)) as days_inactive
+FROM users
+WHERE role = 'student' 
+  AND approved = TRUE
+  AND EXTRACT(DAY FROM (CURRENT_TIMESTAMP - last_active)) > 30
+ORDER BY last_active;
+```
+
+### Get User Point Penalties
+```sql
+SELECT p.points_deducted, p.reason, p.category, p.timestamp,
+       u.name as deducted_by_name, u.role as deducted_by_role
+FROM point_penalties p
+JOIN users u ON p.deducted_by = u.id
+WHERE p.user_id = 'user_id_here'
+ORDER BY p.timestamp DESC;
 ```
